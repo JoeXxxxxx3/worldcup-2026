@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2026 世界杯预言 · The Prophet's Table</title>
+<meta name="description" content="基于四因子模型 + 25000 次蒙特卡洛模拟的 2026 FIFA 世界杯完整预测：小组赛、淘汰赛链路、夺冠概率与球队深度档案。" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&family=Noto+Serif+SC:wght@700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/main.css" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏆</text></svg>" />
+</head>
+<body>
+
+<!-- 噪点纹理覆盖层 -->
+<div class="grain" aria-hidden="true"></div>
+
+<!-- 导航 -->
+<header class="nav" id="nav">
+  <div class="nav__inner">
+    <a href="#top" class="nav__brand">
+      <span class="nav__brand-mark">26</span>
+      <span class="nav__brand-text">世界杯预言<small>The Prophet's Table</small></span>
+    </a>
+    <nav class="nav__links">
+      <a href="#power">夺冠概率</a>
+      <a href="#groups">小组赛</a>
+      <a href="#bracket">淘汰赛</a>
+      <a href="#champion">冠军之路</a>
+      <a href="#teams">球队</a>
+      <a href="#method">方法</a>
+    </nav>
+    <span class="nav__meta" id="navMeta"></span>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero__grid">
+    <div class="hero__copy">
+      <div class="hero__eyebrow">2026 · CAN / MEX / USA</div>
+      <h1 class="hero__title">
+        <span class="hero__title-pre">谁将</span>
+        <span class="hero__title-main">举起大力神杯</span>
+        <span class="hero__title-sub">48 队 · 104 场 · 一场数据驱动的沙盘推演</span>
+      </h1>
+      <p class="hero__lede">不是占卜，而是<strong>四因子实力模型</strong>叠加 <strong>25,000 次蒙特卡洛模拟</strong>的收敛结果。从小组赛每一场的胜平负概率，一路推演到 7 月 19 日纽约决赛的终场哨响。</p>
+      <div class="hero__cta">
+        <a href="#bracket" class="btn btn--gold">查看完整链路 →</a>
+        <a href="#method" class="btn btn--ghost">模型如何运作</a>
+      </div>
+    </div>
+
+    <!-- 冠军卡 -->
+    <aside class="champion-card reveal">
+      <div class="champion-card__label">模型预测冠军</div>
+      <div class="champion-card__flag">
+        <img id="champFlag" alt="" />
+      </div>
+      <div class="champion-card__name" id="champName"></div>
+      <div class="champion-card__rating" id="champRating"></div>
+      <div class="champion-card__path" id="champPath"></div>
+      <div class="champion-card__quote">「决赛基因 + 姆巴佩 + 德尚告别战」</div>
+    </aside>
+  </div>
+
+  <!-- 关键数据条 -->
+  <div class="keystats" id="keystats"></div>
+</section>
+
+<!-- 夺冠概率榜 -->
+<section id="power" class="section">
+  <div class="section__head">
+    <span class="section__index">01</span>
+    <h2 class="section__title">夺冠概率榜</h2>
+    <p class="section__desc">Opta 超级计算机 25,000 次模拟收敛值，叠加博彩赔率校准。条形长度 = 夺冠概率，悬停查看详情。</p>
+  </div>
+  <div class="power-list" id="powerList"></div>
+  <div class="power-note">※ 概率来自独立模型模拟，仅代表收敛期望，非确定性预言。</div>
+</section>
+
+<!-- 小组赛 -->
+<section id="groups" class="section section--alt">
+  <div class="section__head">
+    <span class="section__index">02</span>
+    <h2 class="section__title">小组赛 · 全量赛程</h2>
+    <p class="section__desc">12 组 72 场。<span class="tag tag--done">已完赛</span> 显示真实比分；<span class="tag tag--pred">未赛</span> 显示模型预测比分。每场附胜/平/负三态概率与最可能比分。</p>
+  </div>
+
+  <div class="group-tabs" id="groupTabs"></div>
+  <div class="group-stage" id="groupStage"></div>
+</section>
+
+<!-- 淘汰赛 BRACKET -->
+<section id="bracket" class="section">
+  <div class="section__head">
+    <span class="section__index">03</span>
+    <h2 class="section__title">淘汰赛链路</h2>
+    <p class="section__desc">从 32 强到冠军的完整沙盘。横向滚动浏览 bracket 树，每场附预测比分、胜负依据与焦点战标记。</p>
+  </div>
+
+  <div class="bracket-scroll">
+    <div class="bracket" id="bracketTree"></div>
+  </div>
+</section>
+
+<!-- 冠军之路 -->
+<section id="champion" class="section section--alt">
+  <div class="section__head">
+    <span class="section__index">04</span>
+    <h2 class="section__title">冠军之路 · 六战封王</h2>
+    <p class="section__desc" id="championPathDesc"></p>
+  </div>
+  <div class="path-timeline" id="pathTimeline"></div>
+</section>
+
+<!-- 球队档案 -->
+<section id="teams" class="section">
+  <div class="section__head">
+    <span class="section__index">05</span>
+    <h2 class="section__title">球队深度档案</h2>
+    <p class="section__desc">六支争冠热门的核心阵容、历史世界杯战绩、战术克制与当前风险。</p>
+  </div>
+  <div class="profiles" id="profiles"></div>
+</section>
+
+<!-- 方法论 -->
+<section id="method" class="section section--alt">
+  <div class="section__head">
+    <span class="section__index">06</span>
+    <h2 class="section__title">模型方法论</h2>
+    <p class="section__desc">透明先行：四因子加权 + 蒙特卡洛收敛。预测是概率，不是预言。</p>
+  </div>
+  <div class="method">
+    <div class="method__factors">
+      <div class="factor"><span class="factor__w">45%</span><h4>基础实力 ELO</h4><p>Opta 超级计算机夺冠概率 + 博彩赔率（Covers/FanDuel）双源校准。</p></div>
+      <div class="factor"><span class="factor__w">25%</span><h4>当前赛事状态</h4><p>已完赛小组赛的净胜球、xG、控球率与对手强度。</p></div>
+      <div class="factor"><span class="factor__w">15%</span><h4>战术克制关系</h4><p>历史交锋与风格相克：控球型 vs 防反、身体型 vs 技术型。</p></div>
+      <div class="factor"><span class="factor__w">15%</span><h4>伤病与主场</h4><p>伤病潮、轮换动机、东道主海拔与赛程旅行负荷。</p></div>
+    </div>
+    <div class="tenet reveal">
+      <span class="tenet__icon">⏳</span>
+      <p><strong>时效性原则</strong>仅采用近 <b>4–8 年</b>（约 1–2 个世界杯周期）的球员状态、联赛表现与交锋记录作为预测权重。更早的历史荣誉与陈旧交锋因人员更迭、战术迭代，视为噪声剔除——远古的辉煌不构成当下的胜率。</p>
+    </div>
+    <div class="method__meta" id="methodMeta"></div>
+    <div class="method__risks">
+      <h4>风险边界</h4>
+      <ul>
+        <li>伤病黑天鹅：姆巴佩/亚马尔/梅西/哈兰德任一受伤，对应梯队下调 5–8 分。</li>
+        <li>最佳第三名分配：FIFA 组合表有 40+ 种，对阵为最可能组合的合理推演。</li>
+        <li>法国 vs 西班牙决赛为 55:45 胶着战，西班牙 2-1 夺冠同样合理。</li>
+        <li>东道主变量：墨西哥高原、美国行程优势更易制造爆冷。</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="footer__inner">
+    <div class="footer__col">
+      <div class="footer__brand">⚽ 2026 世界杯预言</div>
+      <p>本站为数据可视化与模型推演作品，仅供交流学习。<br/>预测不构成任何投注建议，概率不代表确定结论。</p>
+    </div>
+    <div class="footer__col">
+      <h5>数据来源</h5>
+      <ul>
+        <li><a href="https://www.espn.com/soccer/story/_/id/48939282/2026-fifa-world-cup-fixtures-results-match-schedule-group-stage-knockout-rounds-bracket" target="_blank" rel="noopener">ESPN 赛程比分</a></li>
+        <li><a href="https://theanalyst.com/articles/who-will-win-2026-fifa-world-cup-predictions-opta-supercomputer" target="_blank" rel="noopener">Opta 超级计算机</a></li>
+        <li><a href="https://www.usatoday.com/story/sports/soccer/worldcup/2026/06/22/world-cup-standings-bracket-scores-schedule/90639182007/" target="_blank" rel="noopener">USA Today 对阵</a></li>
+        <li><a href="https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026" target="_blank" rel="noopener">FIFA 官方</a></li>
+      </ul>
+    </div>
+    <div class="footer__col">
+      <h5>关于</h5>
+      <p id="footerMeta"></p>
+      <p class="footer__hint">国旗由 flagcdn 提供 · 字体 Google Fonts</p>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
