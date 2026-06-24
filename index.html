@@ -78,7 +78,7 @@
   <div class="section__head">
     <span class="section__index">01</span>
     <h2 class="section__title">夺冠概率榜</h2>
-    <p class="section__desc">Opta 超级计算机 25,000 次模拟收敛值，叠加博彩赔率校准。条形长度 = 夺冠概率，悬停查看详情。</p>
+    <p class="section__desc">Opta 超级计算机 25,000 次模拟收敛值，叠加博彩赔率校准 + 已赛 Elo 动态调整。条形长度 = 夺冠概率，<span class="tag tag--pred">↑↓</span> 为已赛后的实力涨跌。</p>
   </div>
   <div class="power-list" id="powerList"></div>
   <div class="power-note">※ 概率来自独立模型模拟，仅代表收敛期望，非确定性预言。</div>
@@ -171,6 +171,15 @@
 </section>
 
 </main>
+
+<!-- 单场详情（深度解析） -->
+<div class="match-view" id="matchView" hidden>
+  <div class="match-view__bar">
+    <a href="#groups" class="match-view__back" id="matchBack">← 返回赛程</a>
+    <span class="match-view__title" id="matchViewTitle"></span>
+  </div>
+  <div class="match-view__body" id="matchBody"></div>
+</div>
 
 <footer class="footer">
   <div class="footer__inner">

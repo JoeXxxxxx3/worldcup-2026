@@ -18,6 +18,15 @@
     if(d < -0.1) return `<span class="delta down">↓${-d}</span>`;
     return '';
   };
+  /* 泊松模型工具（比分概率热力图） */
+  const ELO = r => 1500 + (r - 75) * 12;
+  const poissonPmf = (k, l) => { if(l<=0) return k===0?1:0; let p=Math.exp(-l); for(let i=1;i<=k;i++) p*=l/i; return p; };
+  const lambdas = (rh, ra, host) => {
+    const base=1.35, sc=55, ha = host ? 1.12 : 1;
+    let lh = base * (1 + (rh - ra) / sc) * ha;
+    let la = base * (1 + (ra - rh) / sc);
+    return [Math.max(0.25, Math.min(3.5, lh)), Math.max(0.2, Math.min(3.0, la))];
+  };
 
   /* ---------- 焦点战 ---------- */
   const FOCUS = new Set([
@@ -143,15 +152,14 @@
     return Object.values(t).map(x=>({...x,pts:x.w*3+x.d,gd:x.gf-x.ga})).sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf);
   }
 
-  function matchCard(m){
+  function matchCard(m, idx){
     const [g,v,h_,h,a,hs,as,played,pw,pd,pl,ts] = m;
     const hostMark = h_ ? 'home-host' : '';
     const scoreCls = played ? 'done' : 'pred';
-    const score = played
-      ? `<span>${hs}</span><span class="dash">:</span><span>${as}</span>`
-      : `<span>${hs}</span><span class="dash">:</span><span>${as}</span>`;
+    const statusTag = played ? '<i class="m-status m-done">已完</i>' : '<i class="m-status m-pred">预测</i>';
+    const score = `<span>${hs}</span><span class="dash">:</span><span>${as}</span>${statusTag}`;
     const tops = ts.slice(0,3).map(s=>`<b>${s[0]}</b> ${s[1]}%`).join(' · ');
-    return `<div class="match">
+    return `<div class="match" data-idx="${idx}" onclick="location.hash='/match/'+${idx}" title="点击查看深度解析">
       <div class="match__side"><span class="match__flag">${flagImg(h,40)}</span><span class="match__name ${hostMark}">${TEAMS[h].n}</span></div>
       <div class="match__score ${scoreCls}">${score}</div>
       <div class="match__side match__side--away"><span class="match__flag">${flagImg(a,40)}</span><span class="match__name">${TEAMS[a].n}</span></div>
@@ -189,7 +197,7 @@
             <td class="s-pts">${t.pts}</td>
           </tr>`).join('')
         }</tbody></table>`:''}
-        <div class="matches">${ms.map(matchCard).join('')}</div>
+        <div class="matches">${ms.map(mm=>matchCard(mm, GROUPS.indexOf(mm))).join('')}</div>
       </div>`;
     }).join('');
     $('#groupStage').innerHTML = html;
@@ -372,6 +380,90 @@
     });
   }
 
+  /* ============ 单场详情（深度解析） ============ */
+  function renderMatch(idx){
+    const m = GROUPS[idx];
+    if(!m){ location.hash=''; return; }
+    const [g,v,host,h,a,hs,as,played,pw,pd,pl,ts] = m;
+    const th=TEAMS[h], ta=TEAMS[a];
+    const [lh,la]=lambdas(th.r,ta.r,host);
+    const N=7;
+    const mat=[];
+    for(let i=0;i<N;i++){mat[i]=[];for(let j=0;j<N;j++)mat[i][j]=poissonPmf(i,lh)*poissonPmf(j,la)*100;}
+    let under=0;
+    for(let i=0;i<N;i++)for(let j=0;j<N;j++)if(i+j<=2)under+=mat[i][j];
+    const over=100-under;
+    const flat=[];
+    for(let i=0;i<N;i++)for(let j=0;j<N;j++)flat.push({s:i+'-'+j,p:mat[i][j],i,j});
+    flat.sort((x,y)=>y.p-x.p);
+    const top5=flat.slice(0,5);
+    let head='<tr><th></th>'; for(let j=0;j<N;j++) head+=`<th>${j}</th>`; head+='</tr>';
+    let rows='';
+    for(let i=0;i<N;i++){
+      let cells=`<th>${i}</th>`;
+      for(let j=0;j<N;j++){
+        const p=mat[i][j];
+        const actual=played&&i===hs&&j===as;
+        const op=Math.min(1,p/12);
+        cells+=`<td class="hm-cell ${actual?'hm-actual':''}" style="background:rgba(232,179,57,${(op*0.75).toFixed(2)})">${p>=1?p.toFixed(1):'<i>·</i>'}</td>`;
+      }
+      rows+=`<tr>${cells}</tr>`;
+    }
+    const eh=ELO(th.r), ea=ELO(ta.r);
+    const winnerName = pw>=pd&&pw>=pl?th.n:(pl>=pd?ta.n:'平局');
+    const maxP=Math.max(pw,pd,pl);
+    let actualNote='';
+    if(played){
+      const topHit=hs===top5[0].i&&as===top5[0].j;
+      const dirHit=(hs>as&&top5[0].i>top5[0].j)||(hs<as&&top5[0].i<top5[0].j)||(hs===as&&top5[0].i===top5[0].j);
+      actualNote=topHit?'，实际比分完美命中！':(dirHit?`，实际 ${hs}-${as}（胜负方向命中）`:`，实际 ${hs}-${as}（爆冷偏差）`);
+    }
+    $('#matchViewTitle').textContent = `${th.n} vs ${ta.n}`;
+    $('#matchBody').innerHTML = `
+      <div class="mv-head">
+        <div class="mv-meta">${g}组 · ${v}${host?' · 主场':''} · ${played?'已完赛':'未赛（预测）'}</div>
+        <div class="mv-scoreboard">
+          <div class="mv-team"><div class="mv-flag">${flagImg(h,160)}</div><div class="mv-name">${th.n}${host?'<i class="mv-host">🏠主场</i>':''}</div><div class="mv-elo">Elo ${eh} · ${th.r.toFixed(1)} ${deltaStr(h)}</div></div>
+          <div class="mv-score ${played?'done':'pred'}">${played?`${hs}<span>:</span>${as}`:'<small>未赛</small>'}</div>
+          <div class="mv-team"><div class="mv-flag">${flagImg(a,160)}</div><div class="mv-name">${ta.n}</div><div class="mv-elo">Elo ${ea} · ${ta.r.toFixed(1)} ${deltaStr(a)}</div></div>
+        </div>
+      </div>
+      <div class="mv-grid">
+        <div class="mv-card">
+          <h3>三态概率 <small>融合模型</small></h3>
+          <div class="tri-bar"><div class="tri tri-w" style="width:${pw}%">${th.n}胜 ${pw}%</div><div class="tri tri-d" style="width:${pd}%">平 ${pd}%</div><div class="tri tri-l" style="width:${pl}%">${ta.n}胜 ${pl}%</div></div>
+          <div class="mv-xg">期望进球 <b>${lh.toFixed(2)}</b> : <b>${la.toFixed(2)}</b> ｜ 总进球 >2.5：<b>${over.toFixed(0)}%</b></div>
+        </div>
+        <div class="mv-card">
+          <h3>最可能比分 Top 5 <small>泊松模型</small></h3>
+          <div class="mv-top5">${top5.map(t=>`<span class="topscore ${played&&t.i===hs&&t.j===as?'hit':''}"><b>${t.s}</b><i>${t.p.toFixed(1)}%</i></span>`).join('')}</div>
+        </div>
+      </div>
+      <div class="mv-card">
+        <h3>比分概率热力图</h3>
+        <div class="mv-heat-legend">行 = ${th.n}进球 ｜ 列 = ${ta.n}进球 ｜ 单元格 = 该比分概率%${played?' ｜ 绿框 = 实际比分':''}</div>
+        <div class="mv-heat-wrap"><table class="hm-table"><thead>${head}</thead><tbody>${rows}</tbody></table></div>
+      </div>
+      <div class="mv-card mv-read">
+        <h3>🤖 模型解读</h3>
+        <div class="mv-row"><span class="mv-label">⚖️ 实力对比</span><div>${eh>ea?th.n:ta.n}占优：${th.n} ${eh} vs ${ta.n} ${ea}，差距 ${Math.abs(eh-ea)} 分</div></div>
+        <div class="mv-row"><span class="mv-label">📈 近期状态</span><div>${th.n} ${th.r>th.r0?`<b class="up">强势 ↑${(th.r-th.r0).toFixed(1)}</b>`:'平稳'}；${ta.n} ${ta.r>ta.r0?`<b class="up">强势 ↑${(ta.r-ta.r0).toFixed(1)}</b>`:ta.r<ta.r0?`<b class="down">走低 ↓${(ta.r0-ta.r).toFixed(1)}</b>`:'平稳'}（基于已赛 Elo）</div></div>
+        <div class="mv-row"><span class="mv-label">⚽ 攻防期望</span><div>期望进球 ${th.n} <b>${lh.toFixed(2)}</b> vs ${ta.n} <b>${la.toFixed(2)}</b>（${host?`${th.n}主场 ×1.12`:'中立场'}）</div></div>
+        <div class="mv-row"><span class="mv-label">🎯 综合结论</span><div>模型认为 <b>${winnerName}</b> 概率最高（${maxP}%），最可能比分 <b>${top5[0].s}</b>（${top5[0].p.toFixed(1)}%）${actualNote}。</div></div>
+      </div>
+      <div class="mv-note">※ 热力图与期望进球由泊松模型实时计算（两队实力 + 主场优势）；近期状态基于 Elo 动态调整。历史交锋与近 10 场明细可后续接入 ESPN 补全。</div>
+    `;
+    $('#matchView').hidden=false;
+    document.body.style.overflow='hidden';
+    window.scrollTo(0,0);
+  }
+  function closeMatch(){ $('#matchView').hidden=true; document.body.style.overflow=''; }
+  function router(){
+    const m=location.hash.match(/match\/(\d+)/);
+    if(m) renderMatch(+m[1]);
+    else if($('#matchView')&&!$('#matchView').hidden) closeMatch();
+  }
+
   /* ============ 启动 ============ */
   async function init(){
     await loadResults();
@@ -387,6 +479,8 @@
     renderAccuracy();
     observeReveal();
     setupTheme();
+    window.addEventListener('hashchange', router);
+    router();
     // 平滑滚动锚点偏移
     $$('a[href^="#"]').forEach(a=>{
       a.addEventListener('click',e=>{
