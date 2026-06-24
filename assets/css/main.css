@@ -283,6 +283,18 @@ ul{list-style:none}
 .s-gd{font-family:var(--fm);color:var(--text-dim);text-align:center;width:34px}
 .s-pts{font-family:var(--fm);font-weight:700;color:var(--gold);text-align:right;width:28px}
 .matches{margin-top:6px}
+@media(max-width:760px){
+  .match{padding:11px 2px;gap:6px}
+  .match__name{font-size:12px}
+  .match__flag img{width:20px;height:14px}
+  .match__score{font-size:13px;padding:4px 8px;gap:5px}
+  .m-status{font-size:8px;padding:1px 4px}
+  .match__meta{flex-wrap:wrap;row-gap:4px;column-gap:10px;font-size:10.5px}
+  .match__venue{font-size:10px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .probs{flex:1 1 100%;min-width:0;margin:2px 0}
+  .probs-legend{display:none}
+  .match__topscore{flex-basis:100%;font-size:10px;white-space:normal;line-height:1.4}
+}
 
 /* 32 强网格 */
 .bracket__col--r32{min-width:520px}
