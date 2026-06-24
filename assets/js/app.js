@@ -458,6 +458,19 @@
   }
 
   /* ============ 单场详情（深度解析） ============ */
+  function renderFormRows(code){
+    const resMap = {'胜':'win','平':'draw','负':'loss'};
+    const ms = GROUPS.filter(m => (m[3]===code||m[4]===code) && m[7]===1);
+    if(!ms.length) return '<div class="form-empty">暂无已赛</div>';
+    return ms.map(m=>{
+      const isHome = m[3]===code;
+      const opp = isHome ? m[4] : m[3];
+      const gf = isHome ? m[5] : m[6];
+      const ga = isHome ? m[6] : m[5];
+      const res = gf>ga ? '胜' : gf<ga ? '负' : '平';
+      return `<div class="form-row"><span class="form-tag form-tag--${resMap[res]}">${res}</span><span class="form-opp">${isHome?'':'客 '}${TEAMS[opp].n}</span><b class="form-sc">${gf}-${ga}</b></div>`;
+    }).join('');
+  }
   function renderMatch(idx){
     const m = GROUPS[idx];
     if(!m){ location.hash=''; return; }
@@ -528,7 +541,20 @@
         <div class="mv-row"><span class="mv-label">⚽ 攻防期望</span><div>期望进球 ${th.n} <b>${lh.toFixed(2)}</b> vs ${ta.n} <b>${la.toFixed(2)}</b>（${host?`${th.n}主场 ×1.12`:'中立场'}）</div></div>
         <div class="mv-row"><span class="mv-label">🎯 综合结论</span><div>模型认为 <b>${winnerName}</b> 概率最高（${maxP}%），最可能比分 <b>${top5[0].s}</b>（${top5[0].p.toFixed(1)}%）${actualNote}。</div></div>
       </div>
-      <div class="mv-note">※ 热力图与期望进球由泊松模型实时计算（两队实力 + 主场优势）；近期状态基于 Elo 动态调整。历史交锋与近 10 场明细可后续接入 ESPN 补全。</div>
+      <div class="mv-card">
+        <h3>本届世界杯战绩 <small>真实已赛</small></h3>
+        <div class="mv-form">
+          <div class="mv-form-col">
+            <div class="mv-form-head">${flagImg(h,80)}<span>${th.n}</span></div>
+            ${renderFormRows(h)}
+          </div>
+          <div class="mv-form-col">
+            <div class="mv-form-head">${flagImg(a,80)}<span>${ta.n}</span></div>
+            ${renderFormRows(a)}
+          </div>
+        </div>
+      </div>
+      <div class="mv-note">※ 热力图与期望进球由泊松模型实时计算；战绩为本届世界杯已赛真实结果；近期状态含 Elo 动态调整。跨赛事近10场与历史交锋需额外数据源，暂以本届真实战绩呈现。</div>
     `;
     $('#matchView').hidden=false;
     document.body.style.overflow='hidden';
