@@ -1,0 +1,39 @@
+name: 更新比分
+
+on:
+  schedule:
+    # UTC 每 6 小时跑一次（覆盖北美赛事结束后），非整点避开调度高峰
+    - cron: '17 0,6,12,18 * * *'
+  workflow_dispatch: # 支持在 GitHub 页面手动触发
+
+permissions:
+  contents: write # 允许 bot 提交赛果更新
+
+concurrency:
+  group: update-scores
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 抓取最新赛果（ESPN）
+        run: node scripts/fetch-results.js
+
+      - name: 提交并推送
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/data/results.json
+          if git diff --cached --quiet; then
+            echo "无新赛果，跳过提交"
+          else
+            git commit -m "chore(数据): 自动更新比分 $(date -u +'%Y-%m-%d %H:%M') UTC"
+            git push
+          fi
