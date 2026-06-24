@@ -10,6 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&family=Noto+Serif+SC:wght@700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/main.css" />
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏆</text></svg>" />
+<script>document.documentElement.setAttribute('data-theme',localStorage.getItem('wc-theme')||(matchMedia('(prefers-color-scheme:light)').matches?'light':'dark'))</script>
 </head>
 <body>
 
@@ -32,6 +33,7 @@
       <a href="#method">方法</a>
     </nav>
     <span class="nav__meta" id="navMeta"></span>
+    <button class="theme-btn" id="themeBtn" aria-label="切换主题" title="切换深/浅色">☾</button>
   </div>
 </header>
 
@@ -63,7 +65,7 @@
       <div class="champion-card__name" id="champName"></div>
       <div class="champion-card__rating" id="champRating"></div>
       <div class="champion-card__path" id="champPath"></div>
-      <div class="champion-card__quote">「决赛基因 + 姆巴佩 + 德尚告别战」</div>
+      <div class="champion-card__vs" id="champVs"></div>
     </aside>
   </div>
 
@@ -82,10 +84,20 @@
   <div class="power-note">※ 概率来自独立模型模拟，仅代表收敛期望，非确定性预言。</div>
 </section>
 
-<!-- 小组赛 -->
-<section id="groups" class="section section--alt">
+<!-- 模型战绩 -->
+<section id="accuracy" class="section section--alt">
   <div class="section__head">
     <span class="section__index">02</span>
+    <h2 class="section__title">模型战绩 · 命中率</h2>
+    <p class="section__desc">已完赛场次的预测准确度。预测取三态概率最高者，命中即与实际赛果一致。透明可验证，每场比赛结束自动更新。</p>
+  </div>
+  <div class="accuracy" id="accuracyBody"></div>
+</section>
+
+<!-- 小组赛 -->
+<section id="groups" class="section">
+  <div class="section__head">
+    <span class="section__index">03</span>
     <h2 class="section__title">小组赛 · 全量赛程</h2>
     <p class="section__desc">12 组 72 场。<span class="tag tag--done">已完赛</span> 显示真实比分；<span class="tag tag--pred">未赛</span> 显示模型预测比分。每场附胜/平/负三态概率与最可能比分。</p>
   </div>
@@ -97,7 +109,7 @@
 <!-- 淘汰赛 BRACKET -->
 <section id="bracket" class="section">
   <div class="section__head">
-    <span class="section__index">03</span>
+    <span class="section__index">04</span>
     <h2 class="section__title">淘汰赛链路</h2>
     <p class="section__desc">从 32 强到冠军的完整沙盘。横向滚动浏览 bracket 树，每场附预测比分、胜负依据与焦点战标记。</p>
   </div>
@@ -110,7 +122,7 @@
 <!-- 冠军之路 -->
 <section id="champion" class="section section--alt">
   <div class="section__head">
-    <span class="section__index">04</span>
+    <span class="section__index">05</span>
     <h2 class="section__title">冠军之路 · 六战封王</h2>
     <p class="section__desc" id="championPathDesc"></p>
   </div>
@@ -120,7 +132,7 @@
 <!-- 球队档案 -->
 <section id="teams" class="section">
   <div class="section__head">
-    <span class="section__index">05</span>
+    <span class="section__index">06</span>
     <h2 class="section__title">球队深度档案</h2>
     <p class="section__desc">六支争冠热门的核心阵容、历史世界杯战绩、战术克制与当前风险。</p>
   </div>
@@ -130,7 +142,7 @@
 <!-- 方法论 -->
 <section id="method" class="section section--alt">
   <div class="section__head">
-    <span class="section__index">06</span>
+    <span class="section__index">07</span>
     <h2 class="section__title">模型方法论</h2>
     <p class="section__desc">透明先行：四因子加权 + 蒙特卡洛收敛。预测是概率，不是预言。</p>
   </div>

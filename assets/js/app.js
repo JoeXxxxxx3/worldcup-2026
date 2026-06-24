@@ -3,12 +3,21 @@
    ============================================================ */
 (function(){
   const { META, TEAMS, GROUPS, KNOCKOUT, CHAMPION_PATH, PROFILES } = window.WC;
+  // 记录初始实力分，用于 Elo 动态调整后的涨跌显示
+  Object.keys(TEAMS).forEach(c => { TEAMS[c].r0 = TEAMS[c].r; });
 
   /* ---------- 工具 ---------- */
   const $ = (s,el=document)=>el.querySelector(s);
   const $$ = (s,el=document)=>[...el.querySelectorAll(s)];
   const flagUrl = (code,w=40)=>`https://flagcdn.com/w${w}/${TEAMS[code].f}.png`;
   const flagImg = (code,w=40,cls='flagimg')=>`<img class="${cls}" src="${flagUrl(code,w)}" alt="${TEAMS[code].n}" loading="lazy" />`;
+  /* 实力涨跌标签（基于 Elo 动态调整前后差值） */
+  const deltaStr = c => {
+    const d = Math.round((TEAMS[c].r - TEAMS[c].r0) * 10) / 10;
+    if(d > 0.1) return `<span class="delta up">↑${d}</span>`;
+    if(d < -0.1) return `<span class="delta down">↓${-d}</span>`;
+    return '';
+  };
 
   /* ---------- 焦点战 ---------- */
   const FOCUS = new Set([
@@ -25,8 +34,14 @@
     const c = TEAMS[CHAMP];
     $('#champFlag').src = flagUrl(CHAMP,160);
     $('#champName').textContent = c.n;
-    $('#champRating').innerHTML = `实力分 <b>${c.r}</b> · 夺冠概率 <b>${c.o}%</b>`;
+    $('#champRating').innerHTML = `实力分 <b>${c.r.toFixed(1)}</b> ${deltaStr(CHAMP)} · 夺冠概率 <b>${c.oDyn}%</b>`;
     $('#champPath').textContent = CHAMPION_PATH.map(p=>`${p.round} ${p.score}`).join('  ›  ');
+
+    $('#champVs').innerHTML = `
+      <div class="vs-head">为何不是概率最高的西班牙？</div>
+      <div class="vs-row"><span class="vs-tag">概率模型第一</span><span class="vs-team"><img src="${flagUrl('ESP',40)}" alt=""/>西班牙</span><b>${TEAMS.ESP.o.toFixed(1)}%</b></div>
+      <div class="vs-row vs-row--hi"><span class="vs-tag vs-tag--gold">综合推演冠军</span><span class="vs-team"><img src="${flagUrl('FRA',40)}" alt=""/>法国</span><b>${c.oDyn}%</b></div>
+      <div class="vs-note">Opta 概率模型西班牙居首；本站经赔率 + 决赛基因 + 动态状态加权推演法国夺冠。决赛 55:45 胶着。</div>`;
 
     $('#navMeta').innerHTML = `数据截至 ${META.updated}<br/>蒙特卡洛 ${META.monteCarlo.toLocaleString()} 次`;
     $('#footerMeta').innerHTML = `数据截至 <b style="color:var(--gold);font-family:var(--fm)">${META.updated}</b><br/>模型更新 ${META.modelUpdate}<br/>半衰期 ${META.halfLife}`;
@@ -35,7 +50,7 @@
       {n:'48',u:'支',l:'参赛球队'},
       {n:'104',u:'场',l:'比赛场次'},
       {n:(META.monteCarlo/1000)+'K',u:'次',l:'蒙特卡洛模拟'},
-      {n:TEAMS[CHAMP].o,u:'%',l:`${TEAMS[CHAMP].n}夺冠概率`},
+      {n:TEAMS[CHAMP].oDyn,u:'%',l:`${TEAMS[CHAMP].n}夺冠概率`},
     ];
     $('#keystats').innerHTML = stats.map(s=>`
       <div class="ks reveal"><div class="ks__num">${s.n}<small>${s.u}</small></div>
@@ -48,21 +63,68 @@
   function renderPower(){
     const ranked = Object.entries(TEAMS)
       .map(([c,t])=>({c,...t}))
-      .filter(t=>t.o>=1.0)
-      .sort((a,b)=>b.o-a.o);
-    const max = ranked[0].o;
+      .filter(t=>t.oDyn>=1.0)
+      .sort((a,b)=>b.oDyn-a.oDyn);
+    const max = ranked[0].oDyn;
     $('#powerList').innerHTML = ranked.map((t,i)=>`
       <div class="power-row reveal ${i<3?'is-top':''}">
         <div class="power-rank">${String(i+1).padStart(2,'0')}</div>
         <div class="power-main">
           ${flagImg(t.c,80,'power-flag')}
           <div style="flex:1;min-width:0">
-            <div class="power-name">${t.n}<small>${t.g}组 · 实力 ${t.r}</small></div>
-            <div class="power-bar"><div class="power-bar__fill" data-pct="${(t.o/max*100).toFixed(1)}"></div></div>
+            <div class="power-name">${t.n}<small>${t.g}组 · ${t.r.toFixed(1)} ${deltaStr(t.c)}</small></div>
+            <div class="power-bar"><div class="power-bar__fill" data-pct="${(t.oDyn/max*100).toFixed(1)}"></div></div>
           </div>
         </div>
-        <div class="power-pct">${t.o.toFixed(1)}%</div>
+        <div class="power-pct">${t.oDyn.toFixed(1)}%</div>
       </div>`).join('');
+  }
+
+  /* ============ 模型战绩（命中率） ============ */
+  function calcAccuracy(){
+    let total=0, hit=0, wlTotal=0, wlHit=0; const miss=[];
+    const t={win:{h:0,t:0}, draw:{h:0,t:0}, loss:{h:0,t:0}};
+    GROUPS.forEach(m=>{
+      const [g,v,host,h,a,hs,as,played,pw,pd,pl]=m;
+      if(played!==1) return;
+      total++;
+      const pred = (pw>=pd && pw>=pl) ? 'win' : (pl>=pd ? 'loss' : 'draw');
+      const actual = hs>as ? 'win' : (hs<as ? 'loss' : 'draw');
+      t[actual].t++;
+      if(pred===actual){ hit++; t[actual].h++; }
+      else miss.push({m, pred, actual});
+      if(actual!=='draw'){ wlTotal++; if(pred===actual) wlHit++; }
+    });
+    return {total, hit, miss, t, wlTotal, wlHit};
+  }
+
+  function renderAccuracy(){
+    const acc = calcAccuracy();
+    const rate = acc.total ? (acc.hit/acc.total*100).toFixed(1) : '0.0';
+    const label = {win:'主胜', draw:'平局', loss:'客胜'};
+    const missHtml = acc.miss.map(x=>{
+      const [g,v,host,h,a,hs,as]=x.m;
+      return `<div class="acc-miss__item">
+        <span class="acc-miss__flags">${flagImg(h,40)}${flagImg(a,40)}</span>
+        <span class="acc-miss__match">${TEAMS[h].n} <b>${hs}-${as}</b> ${TEAMS[a].n}</span>
+        <span class="acc-miss__pred">预测${label[x.pred]} · 实际${label[x.actual]}</span>
+      </div>`;
+    }).join('');
+    $('#accuracyBody').innerHTML = `
+      <div class="acc-hero reveal">
+        <div class="acc-rate"><b>${rate}<i>%</i></b><small>命中率</small></div>
+        <div class="acc-detail">
+          <div class="acc-big"><b>${acc.hit}</b><span> / ${acc.total} 场已赛命中</span></div>
+          <div class="acc-types">
+            <span class="acc-type acc-type--w">胜负识别 <b>${acc.wlHit}/${acc.wlTotal}</b> · ${acc.wlTotal?(acc.wlHit/acc.wlTotal*100).toFixed(0):0}%</span>
+            <span class="acc-type acc-type--d">平局 <b>${acc.t.draw.h}/${acc.t.draw.t}</b> · 公认难点</span>
+          </div>
+        </div>
+      </div>
+      ${acc.miss.length ? `<div class="acc-miss reveal">
+        <div class="acc-miss__head">预测偏差 · ${acc.miss.length} 场（以平局爆冷为主，足球预测公认难点）</div>
+        <div class="acc-miss__list">${missHtml}</div>
+      </div>` : ''}`;
   }
 
   /* ============ 3. 小组赛 ============ */
@@ -210,7 +272,7 @@
         <div class="profile__head">
           <div class="profile__flag">${flagImg(p.c,160)}</div>
           <div class="profile__title">${TEAMS[p.c].n}<br/><span style="font-size:12px;color:var(--text-mute);font-weight:400;font-family:var(--fb)">${p.title}</span></div>
-          <div class="profile__rating"><b>${p.rating}</b><small>实力 · ${p.odds}</small></div>
+          <div class="profile__rating"><b>${TEAMS[p.c].r.toFixed(1)}</b><small>${deltaStr(p.c)} · ${p.odds}</small></div>
         </div>
         <dl>
           <div class="profile__row"><dt>核心</dt><dd>${p.core}</dd></div>
@@ -248,8 +310,73 @@
     $$('.reveal').forEach(el=>io.observe(el));
   }
 
+  /* ============ 主题切换 ============ */
+  function setupTheme(){
+    const btn = $('#themeBtn'); if(!btn) return;
+    const root = document.documentElement;
+    const sync = ()=> btn.textContent = root.getAttribute('data-theme')==='light' ? '☀' : '☾';
+    sync();
+    btn.addEventListener('click', ()=>{
+      const next = root.getAttribute('data-theme')==='light' ? 'dark' : 'light';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('wc-theme', next);
+      sync();
+    });
+  }
+
+  /* ============ 实时赛果加载（覆盖内置比分） ============ */
+  async function loadResults(){
+    try{
+      const res = await fetch('assets/data/results.json?t=' + Date.now());
+      if(!res.ok) return;
+      const data = await res.json();
+      const map = {};
+      data.forEach(r => { if(r.played === 1) map[r.h + '_' + r.a] = r; });
+      let n = 0;
+      GROUPS.forEach(m => {
+        const r = map[m[3] + '_' + m[4]];
+        if(r){ m[5] = r.hs; m[6] = r.as; m[7] = 1; n++; }
+      });
+      if(n) console.log(`✓ 实时赛果已合并 ${n} 场`);
+    }catch(e){ console.warn('results.json 未加载，使用内置数据'); }
+  }
+
+  /* ============ 动态 Elo 实力调整（爆冷自适应） ============
+     每场已赛后按"实际 vs 预期"更新两队实力分；爆冷（弱胜强）大幅调整，
+     大比分放大。连锁：实力分变 → 夺冠概率重算 → 概率榜/档案随之更新。 */
+  function applyElo(){
+    const K = 6, C = 60;
+    const expect = (Ra, Rb) => 1 / (1 + Math.pow(10, (Rb - Ra) / C));
+    GROUPS.forEach(m => {
+      const [g, v, host, h, a, hs, as, played] = m;
+      if(played !== 1) return;
+      const Ra = TEAMS[h].r, Rb = TEAMS[a].r;
+      const Ea = expect(Ra, Rb);
+      const Sa = hs > as ? 1 : (hs < as ? 0 : 0.5);
+      const gd = Math.abs(hs - as);
+      const mu = gd >= 3 ? 1.3 : (gd === 2 ? 1.1 : 1);
+      const d = K * mu * (Sa - Ea);
+      TEAMS[h].r = Math.round((Ra + d) * 10) / 10;
+      TEAMS[a].r = Math.round((Rb - d) * 10) / 10;
+    });
+  }
+
+  /* 夺冠概率：Opta 先验 + 实力涨跌微调，归一化保持总盘 */
+  function recomputeOdds(){
+    const optaSum = Object.values(TEAMS).reduce((s, t) => s + t.o, 0);
+    const w = 0.025;
+    const rawSum = Object.values(TEAMS).reduce((s, t) => s + t.o * (1 + (t.r - t.r0) * w), 0);
+    Object.keys(TEAMS).forEach(c => {
+      const t = TEAMS[c];
+      t.oDyn = +(t.o * (1 + (t.r - t.r0) * w) / rawSum * optaSum).toFixed(1);
+    });
+  }
+
   /* ============ 启动 ============ */
-  function init(){
+  async function init(){
+    await loadResults();
+    applyElo();
+    recomputeOdds();
     renderHero();
     renderPower();
     renderGroups();
@@ -257,7 +384,9 @@
     renderPath();
     renderProfiles();
     renderMethod();
+    renderAccuracy();
     observeReveal();
+    setupTheme();
     // 平滑滚动锚点偏移
     $$('a[href^="#"]').forEach(a=>{
       a.addEventListener('click',e=>{

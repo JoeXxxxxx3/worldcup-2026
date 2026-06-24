@@ -1,0 +1,331 @@
+[
+  {
+    "h": "MEX",
+    "a": "RSA",
+    "hs": 2,
+    "as": 0,
+    "played": 1
+  },
+  {
+    "h": "KOR",
+    "a": "CZE",
+    "hs": 2,
+    "as": 1,
+    "played": 1
+  },
+  {
+    "h": "CAN",
+    "a": "BIH",
+    "hs": 1,
+    "as": 1,
+    "played": 1
+  },
+  {
+    "h": "USA",
+    "a": "PAR",
+    "hs": 4,
+    "as": 1,
+    "played": 1
+  },
+  {
+    "h": "QAT",
+    "a": "SUI",
+    "hs": 1,
+    "as": 1,
+    "played": 1
+  },
+  {
+    "h": "BRA",
+    "a": "MAR",
+    "hs": 1,
+    "as": 1,
+    "played": 1
+  },
+  {
+    "h": "HAI",
+    "a": "SCO",
+    "hs": 0,
+    "as": 1,
+    "played": 1
+  },
+  {
+    "h": "AUS",
+    "a": "TUR",
+    "hs": 2,
+    "as": 0,
+    "played": 1
+  },
+  {
+    "h": "GER",
+    "a": "CUW",
+    "hs": 7,
+    "as": 1,
+    "played": 1
+  },
+  {
+    "h": "CIV",
+    "a": "ECU",
+    "hs": 1,
+    "as": 0,
+    "played": 1
+  },
+  {
+    "h": "NED",
+    "a": "JPN",
+    "hs": 2,
+    "as": 2,
+    "played": 1
+  },
+  {
+    "h": "SWE",
+    "a": "TUN",
+    "hs": 5,
+    "as": 1,
+    "played": 1
+  },
+  {
+    "h": "BEL",
+    "a": "EGY",
+    "hs": 1,
+    "as": 1,
+    "played": 1
+  },
+  {
+    "h": "IRN",
+    "a": "NZL",
+    "hs": 2,
+    "as": 2,
+    "played": 1
+  },
+  {
+    "h": "ESP",
+    "a": "CPV",
+    "hs": 0,
+    "as": 0,
+    "played": 1
+  },
+  {
+    "h": "KSA",
+    "a": "URU",
+    "hs": 1,
+    "as": 1,
+    "played": 1
+  },
+  {
+    "h": "FRA",
+    "a": "SEN",
+    "hs": 3,
+    "as": 1,
+    "played": 1
+  },
+  {
+    "h": "IRQ",
+    "a": "NOR",
+    "hs": 1,
+    "as": 4,
+    "played": 1
+  },
+  {
+    "h": "ARG",
+    "a": "ALG",
+    "hs": 3,
+    "as": 0,
+    "played": 1
+  },
+  {
+    "h": "AUT",
+    "a": "JOR",
+    "hs": 3,
+    "as": 1,
+    "played": 1
+  },
+  {
+    "h": "POR",
+    "a": "COD",
+    "hs": 1,
+    "as": 1,
+    "played": 1
+  },
+  {
+    "h": "UZB",
+    "a": "COL",
+    "hs": 1,
+    "as": 3,
+    "played": 1
+  },
+  {
+    "h": "ENG",
+    "a": "CRO",
+    "hs": 4,
+    "as": 2,
+    "played": 1
+  },
+  {
+    "h": "GHA",
+    "a": "PAN",
+    "hs": 1,
+    "as": 0,
+    "played": 1
+  },
+  {
+    "h": "CZE",
+    "a": "RSA",
+    "hs": 1,
+    "as": 1,
+    "played": 1
+  },
+  {
+    "h": "MEX",
+    "a": "KOR",
+    "hs": 1,
+    "as": 0,
+    "played": 1
+  },
+  {
+    "h": "SUI",
+    "a": "BIH",
+    "hs": 4,
+    "as": 1,
+    "played": 1
+  },
+  {
+    "h": "CAN",
+    "a": "QAT",
+    "hs": 6,
+    "as": 0,
+    "played": 1
+  },
+  {
+    "h": "SCO",
+    "a": "MAR",
+    "hs": 0,
+    "as": 1,
+    "played": 1
+  },
+  {
+    "h": "BRA",
+    "a": "HAI",
+    "hs": 3,
+    "as": 0,
+    "played": 1
+  },
+  {
+    "h": "USA",
+    "a": "AUS",
+    "hs": 2,
+    "as": 0,
+    "played": 1
+  },
+  {
+    "h": "TUR",
+    "a": "PAR",
+    "hs": 0,
+    "as": 1,
+    "played": 1
+  },
+  {
+    "h": "GER",
+    "a": "CIV",
+    "hs": 2,
+    "as": 1,
+    "played": 1
+  },
+  {
+    "h": "ECU",
+    "a": "CUW",
+    "hs": 0,
+    "as": 0,
+    "played": 1
+  },
+  {
+    "h": "NED",
+    "a": "SWE",
+    "hs": 5,
+    "as": 1,
+    "played": 1
+  },
+  {
+    "h": "TUN",
+    "a": "JPN",
+    "hs": 0,
+    "as": 4,
+    "played": 1
+  },
+  {
+    "h": "BEL",
+    "a": "IRN",
+    "hs": 0,
+    "as": 0,
+    "played": 1
+  },
+  {
+    "h": "NZL",
+    "a": "EGY",
+    "hs": 1,
+    "as": 3,
+    "played": 1
+  },
+  {
+    "h": "ESP",
+    "a": "KSA",
+    "hs": 4,
+    "as": 0,
+    "played": 1
+  },
+  {
+    "h": "URU",
+    "a": "CPV",
+    "hs": 2,
+    "as": 2,
+    "played": 1
+  },
+  {
+    "h": "FRA",
+    "a": "IRQ",
+    "hs": 3,
+    "as": 0,
+    "played": 1
+  },
+  {
+    "h": "NOR",
+    "a": "SEN",
+    "hs": 3,
+    "as": 2,
+    "played": 1
+  },
+  {
+    "h": "ARG",
+    "a": "AUT",
+    "hs": 2,
+    "as": 0,
+    "played": 1
+  },
+  {
+    "h": "JOR",
+    "a": "ALG",
+    "hs": 1,
+    "as": 2,
+    "played": 1
+  },
+  {
+    "h": "POR",
+    "a": "UZB",
+    "hs": 5,
+    "as": 0,
+    "played": 1
+  },
+  {
+    "h": "ENG",
+    "a": "GHA",
+    "hs": 0,
+    "as": 0,
+    "played": 1
+  },
+  {
+    "h": "PAN",
+    "a": "CRO",
+    "hs": 0,
+    "as": 1,
+    "played": 1
+  }
+]
