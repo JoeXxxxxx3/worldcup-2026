@@ -34,9 +34,11 @@
     'FRA-ENG','ENG-FRA','BRA-FRA','FRA-BRA','ESP-ARG','ARG-ESP','FRA-ESP','ESP-FRA'
   ]);
   const isFocus = (h,a)=>FOCUS.has(`${h}-${a}`);
-  /* 冠军之路高亮（法国经过的所有淘汰赛） */
+  /* 冠军之路高亮：优先用动态推演冠军，否则综合推演冠军 */
   const CHAMP = META.champion;
-  const onChampPath = (h,a)=> h===CHAMP||a===CHAMP;
+  let dynamicKO = null;
+  const getChampion = ()=> (dynamicKO && dynamicKO.final[0] && dynamicKO.final[0].w) || CHAMP;
+  const onChampPath = (h,a)=> { const c=getChampion(); return h===c||a===c; };
 
   /* ============ 1. 冠军卡 & 顶部数据 ============ */
   function renderHero(){
@@ -211,6 +213,81 @@
   }
 
   /* ============ 4. 淘汰赛 BRACKET ============ */
+  /* FIFA 32强第三名slot允许的来源组 */
+  const SLOT_SOURCES = {
+    3:['A','B','C','D','F'], 6:['C','D','F','G','H'], 7:['C','E','F','H','I'],
+    8:['E','H','I','J','K'], 9:['B','E','F','I','J'], 10:['A','E','H','I','J'],
+    13:['E','F','G','I','J'], 16:['D','E','I','J','L']
+  };
+  /* 回溯分配 8 个最佳第三到对应 slot（满足来源组约束 + 唯一占用） */
+  function assignThirds(thirds){
+    const slots=[3,6,7,8,9,10,13,16];
+    const used=new Set(); const assign={};
+    function bt(i){
+      if(i>=slots.length) return true;
+      const allow=SLOT_SOURCES[slots[i]];
+      for(const t of thirds){
+        if(used.has(t.g)||!allow.includes(t.g)) continue;
+        used.add(t.g); assign[slots[i]]=t.code;
+        if(bt(i+1)) return true;
+        used.delete(t.g);
+      }
+      return false;
+    }
+    return bt(0)?assign:null;
+  }
+  /* 淘汰赛单场预测：实时 Elo 决定胜者，泊松模型生成比分 */
+  function predictKO(h,a){
+    if(!h||!a||!TEAMS[h]||!TEAMS[a]) return null;
+    const [lh,la]=lambdas(TEAMS[h].r,TEAMS[a].r,false);
+    const N=6; const mat=[];
+    for(let i=0;i<N;i++){mat[i]=[];for(let j=0;j<N;j++)mat[i][j]=poissonPmf(i,lh)*poissonPmf(j,la);}
+    const winner = TEAMS[h].r>=TEAMS[a].r ? h : a;
+    let best={p:-1,i:1,j:0};
+    for(let i=0;i<N;i++)for(let j=0;j<N;j++){
+      if((winner===h&&i>j)||(winner===a&&j>i)){
+        if(mat[i][j]>best.p) best={p:mat[i][j],i,j};
+      }
+    }
+    const loser = winner===h ? a : h;
+    const dElo = Math.round(ELO(TEAMS[winner].r)-ELO(TEAMS[loser].r));
+    const close = Math.abs(TEAMS[h].r-TEAMS[a].r)<3;
+    return {h,a,hs:best.i,as:best.j,w:winner,et:close?1:0,
+      note:`${TEAMS[winner].n}晋级 · Elo +${dElo}${close?'（势均力敌，或经加时）':''}`};
+  }
+  /* 完整动态重推演：出线 → 第三名分配 → 32强对阵 → 逐轮胜者 */
+  function buildKnockout(){
+    const codes='ABCDEFGHIJKL'.split('');
+    const W={}; const thirds=[];
+    for(const g of codes){
+      const ms=GROUPS.filter(m=>m[0]===g);
+      const st=calcStandings(ms);
+      if(st.length<3) return null;
+      W[g]=st.slice(0,3).map(x=>x.c);
+      const t=st[2];
+      thirds.push({g,code:t.c,pts:t.pts,gd:t.gd,gf:t.gf});
+    }
+    thirds.sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf);
+    const assign=assignThirds(thirds.slice(0,8));
+    if(!assign) return null;
+    const pick = s => assign[s];
+    const r32def=[
+      [W.A[1],W.B[1]],[W.C[0],W.F[1]],[W.E[0],pick(3)],[W.F[0],W.C[1]],
+      [W.E[1],W.I[1]],[W.I[0],pick(6)],[W.A[0],pick(7)],[W.L[0],pick(8)],
+      [W.D[0],pick(9)],[W.G[0],pick(10)],[W.H[0],W.J[1]],[W.K[1],W.L[1]],
+      [W.B[0],pick(13)],[W.D[1],W.G[1]],[W.J[0],W.H[1]],[W.K[0],pick(16)]
+    ];
+    const r32=r32def.map(([h,a])=>predictKO(h,a)).filter(Boolean);
+    if(r32.length<16) return null;
+    const mk=arr=>{const r=[];for(let i=0;i<arr.length;i+=2){if(arr[i]&&arr[i+1])r.push(predictKO(arr[i].w,arr[i+1].w));}return r;};
+    const r16=mk(r32), qf=mk(r16), sf=mk(qf);
+    if(sf.length<2) return null;
+    const final=predictKO(sf[0].w,sf[1].w);
+    const l0=sf[0].h===sf[0].w?sf[0].a:sf[0].h;
+    const l1=sf[1].h===sf[1].w?sf[1].a:sf[1].h;
+    const third=predictKO(l0,l1);
+    return {r32,r16,qf,sf,final:[final],third:[third]};
+  }
   function koCard(m, roundLabel, isFinal=false){
     const {d,v,h,a,hs,as,w,et,note} = m;
     const focus = isFocus(h,a);
@@ -219,7 +296,7 @@
     const winH = w===h, winA = w===a;
     return `<div class="${cls}">
       ${focus?`<span class="focus-tag">焦点战</span>`:''}
-      <div class="ko-card__round">${roundLabel}<span class="ko-card__date">${d}</span></div>
+      <div class="ko-card__round">${roundLabel}${d?`<span class="ko-card__date">${d}</span>`:''}</div>
       <div class="ko-team ${winH?'win':'lose'}">
         <span class="ko-team__flag">${flagImg(h,40)}</span>
         <span class="ko-team__name">${TEAMS[h].n}</span>
@@ -235,28 +312,28 @@
   }
 
   function renderBracket(){
+    const ko = dynamicKO || KNOCKOUT;
     const col = (label,arr,final=false)=>`<div class="bracket__col">
       <div class="bracket__col-title">${label}</div>
       ${arr.map(m=>koCard(m,'',final)).join('')}
     </div>`;
-    // 32强内部2列网格
-    const r32 = KNOCKOUT.r32;
+    const r32 = ko.r32;
     const half = Math.ceil(r32.length/2);
     const r32html = `<div class="bracket__col bracket__col--r32">
-      <div class="bracket__col-title">32 强 · <em>Round of 32</em></div>
+      <div class="bracket__col-title">32 强 · <em>${dynamicKO?'实时出线':'Round of 32'}</em></div>
       <div class="r32-grid">
         <div>${r32.slice(0,half).map(m=>koCard(m,'')).join('')}</div>
         <div>${r32.slice(half).map(m=>koCard(m,'')).join('')}</div>
       </div>
     </div>`;
     $('#bracketTree').innerHTML = r32html +
-      col('16 强 · <em>R16</em>', KNOCKOUT.r16) +
-      col('8 强 · <em>QF</em>', KNOCKOUT.qf) +
-      col('4 强 · <em>SF</em>', KNOCKOUT.sf) +
+      col('16 强 · <em>R16</em>', ko.r16) +
+      col('8 强 · <em>QF</em>', ko.qf) +
+      col('4 强 · <em>SF</em>', ko.sf) +
       `<div class="bracket__col">
         <div class="bracket__col-title">决赛 · <em>Final</em></div>
-        ${koCard(KNOCKOUT.final[0],'',true)}
-        <div style="margin-top:18px"><div class="bracket__col-title" style="opacity:.6">季军战</div>${koCard(KNOCKOUT.third[0],'')}</div>
+        ${koCard(ko.final[0],'',true)}
+        <div style="margin-top:18px"><div class="bracket__col-title" style="opacity:.6">季军战</div>${koCard(ko.third[0],'')}</div>
        </div>`;
   }
 
@@ -469,6 +546,7 @@
     await loadResults();
     applyElo();
     recomputeOdds();
+    dynamicKO = buildKnockout();
     renderHero();
     renderPower();
     renderGroups();
