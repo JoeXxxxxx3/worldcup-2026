@@ -2,7 +2,7 @@
    2026 世界杯预言 — 渲染层
    ============================================================ */
 (function(){
-  const { META, TEAMS, GROUPS, KNOCKOUT, CHAMPION_PATH, PROFILES, FIFA_RANK, STARS, PLAYER_AWARDS } = window.WC;
+  const { META, TEAMS, GROUPS, KNOCKOUT, CHAMPION_PATH, PROFILES, FIFA_RANK, STARS, PLAYER_AWARDS, H2H } = window.WC;
   // 记录初始实力分，用于 Elo 动态调整后的涨跌显示
   Object.keys(TEAMS).forEach(c => { TEAMS[c].r0 = TEAMS[c].r; });
 
@@ -436,6 +436,9 @@
       const sc=played?`${f} : ${a}`:`胜${wPct}·平${m[9]}·负${lPct}`;
       return `<div class="tv-fix"><span class="tv-fix__tag ${tagCls}">${tag}</span><span class="tv-fix__vs">${isH?'主':'客'} ${flagImg(opp,40,'tv-flag-sm')}${TEAMS[opp].n}</span><span class="tv-fix__sc ${played?'':'pred'}">${sc}</span></div>`;
     }).join('');
+    const myH2H = Object.keys(H2H).filter(k=>k.split('-').includes(code)).map(k=>{
+      const opp=k.split('-').find(c=>c!==code); return {opp, ...H2H[k]};
+    });
     return `
       <div class="tv-head">
         <div class="tv-flag">${flagImg(code,160)}</div>
@@ -509,6 +512,9 @@
           <div class="tv-analysis__item up"><h4>▲ 核心优势</h4>${p.edge}</div>
           <div class="tv-analysis__item dn"><h4>▼ 潜在风险</h4>${p.risk}</div>
         </div></div>`:''}
+      ${myH2H.length?`<div class="mv-card"><h3>历史宿敌交锋 <small>经典对决</small></h3>
+        ${myH2H.map(h=>`<div class="tv-h2h"><div class="tv-h2h-head"><span class="tv-flag-sm">${flagImg(h.opp,40,'')}</span><b>vs ${TEAMS[h.opp].n}</b><span class="tv-h2h-total">${h.total}</span></div><div class="tv-h2h-wc"><i>世界杯</i>${h.wc}</div><div class="tv-h2h-last"><i>最近</i>${h.last}</div><div class="tv-h2h-tag">${h.tag}</div></div>`).join('')}
+      </div>`:''}
       <div class="mv-note">※ 实力分与夺冠概率基于四因子模型（ELO 45% + 当前状态 25% + 战术 15% + 伤病主场 15%）+ 25,000 次蒙特卡洛；积分榜 / 攻防 / 赛程为本届真实数据，已赛 Elo 动态调整。<b>再点该行可收起</b></div>
     `;
   }

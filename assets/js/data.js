@@ -291,4 +291,16 @@ const PLAYER_AWARDS = {
   ],
 };
 
-window.WC = { META, TEAMS, GROUPS, KNOCKOUT, CHAMPION_PATH, PROFILES, FIFA_RANK, STARS, PLAYER_AWARDS };
+/* 重点对决历史交锋（来源 Wikipedia/Transfermarkt/RSSSF） */
+const H2H = {
+  'FRA-BRA':{total:'16场 法7胜3平6负',wc:'1998决赛 法3-0 · 2006四强 法1-0',last:'2015 友谊赛 法3-1',tag:'98决赛齐达内两记头球；法国近三届世界杯对巴西三连杀'},
+  'FRA-ESP':{total:'38场 西18胜7平13负',wc:'1982小组 1-1',last:'2024欧洲杯半决赛 西2-1',tag:'2024欧洲杯亚马尔世界波淘汰法国'},
+  'ARG-POR':{total:'约8场 阿5胜2平2负',wc:'正赛从未相遇',last:'2014友谊赛 葡1-0',tag:'梅西vsC罗宿命：国家队正式比赛从未相遇'},
+  'ENG-FRA':{total:'31场 英17胜5平9负',wc:'2022四强 法2-1',last:'2017友谊赛 法3-2',tag:'2022四强凯恩失点，吉鲁头球淘汰英格兰'},
+  'BRA-GER':{total:'23场 巴10胜5平8负',wc:'2002决赛 巴2-0 · 2014半决赛 德7-1',last:'2014半决赛 德7-1',tag:'2002决赛外星人双响 vs 2014米内罗惨案，两极反差'},
+  'ESP-ARG':{total:'约9场 阿略占优',wc:'1966小组 阿2-1',last:'2018友谊赛 西6-1',tag:'2018热身赛西班牙6-1血洗阿根廷'},
+  'BRA-ARG':{total:'110场 巴43胜41负26平',wc:'1982小组 巴3-1',last:'2023世预赛 阿1-0',tag:'南美超级经典：2021美洲杯决赛阿根廷1-0夺冠，梅西圆梦'},
+  'GER-NED':{total:'48场 德18胜18平12负',wc:'1974决赛 德2-1 · 1990十六强 德2-1',last:'2024欧国联 2-2',tag:'欧洲经典宿敌：1974决赛贝肯鲍尔复仇克鲁伊夫'},
+};
+
+window.WC = { META, TEAMS, GROUPS, KNOCKOUT, CHAMPION_PATH, PROFILES, FIFA_RANK, STARS, PLAYER_AWARDS, H2H };
