@@ -88,10 +88,11 @@
           </div>
         </div>
         <div class="power-pct">${t.oDyn.toFixed(1)}%</div>
-      </div>`).join('');
+      </div>
+      <div class="power-detail" data-for="${t.c}" hidden></div>`).join('');
     $$('#powerList .power-row').forEach(r=>{
-      r.addEventListener('click',()=>openTeam(r.dataset.team));
-      r.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openTeam(r.dataset.team);}});
+      r.addEventListener('click',()=>toggleTeam(r.dataset.team,r));
+      r.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleTeam(r.dataset.team,r);}});
     });
   }
 
@@ -372,10 +373,10 @@
       </div>`).join('');
   }
 
-  /* ============ 球队详情弹层（夺冠概率榜点击展开） ============ */
-  function openTeam(code){
+  /* ============ 球队详情就地展开（夺冠概率榜 accordion） ============ */
+  function teamDetailHTML(code){
     const t = TEAMS[code];
-    if(!t) return;
+    if(!t) return '';
     const p = PROFILES.find(x=>x.c===code);
     const elo = ELO(t.r);
     const delta = t.r - (t.r0||t.r);
@@ -387,10 +388,9 @@
     const isHost = META.host.includes(t.n);
     const grpPct = (5-grpRank)/4*100;
     const grpRole = grpRank===1?'出线大热':grpRank===2?'直接竞争者':'出线边缘';
-    $('#teamViewTitle').textContent = `${t.n} · 实力档案`;
-    $('#teamBody').innerHTML = `
+    return `
       <div class="tv-head">
-        <div class="tv-flag">${flagImg(code,128)}</div>
+        <div class="tv-flag">${flagImg(code,96)}</div>
         <div style="flex:1;min-width:0">
           <div class="tv-title">${t.n}</div>
           <div class="tv-sub">${t.g}组 · ${tier} · Elo ${Math.round(elo)} · ${p?p.title:'世界杯参赛队'}</div>
@@ -441,13 +441,21 @@
           <div class="tv-analysis__item up"><h4>▲ 核心优势</h4>${p.edge}</div>
           <div class="tv-analysis__item dn"><h4>▼ 潜在风险</h4>${p.risk}</div>
         </div></div>`:''}
-      <div class="mv-note">※ 实力分与夺冠概率基于四因子模型（ELO 45% + 当前状态 25% + 战术 15% + 伤病主场 15%）叠加 25,000 次蒙特卡洛模拟；已赛 Elo 动态调整实时反映本届战绩。</div>
+      <div class="mv-note">※ 实力分与夺冠概率基于四因子模型（ELO 45% + 当前状态 25% + 战术 15% + 伤病主场 15%）叠加 25,000 次蒙特卡洛模拟；已赛 Elo 动态调整实时反映本届战绩。<b>再点该行可收起</b></div>
     `;
-    $('#teamView').hidden=false;
-    document.body.style.overflow='hidden';
-    window.scrollTo(0,0);
   }
-  function closeTeam(){ $('#teamView').hidden=true; document.body.style.overflow=''; }
+  function toggleTeam(code,row){
+    const detail=row&&row.nextElementSibling;
+    const open=detail&&!detail.hidden;
+    $$('.power-detail').forEach(d=>d.hidden=true);
+    $$('.power-row').forEach(r=>r.classList.remove('is-open'));
+    if(!open&&detail){
+      detail.innerHTML=teamDetailHTML(code);
+      detail.hidden=false;
+      row.classList.add('is-open');
+      setTimeout(()=>detail.scrollIntoView({behavior:'smooth',block:'nearest'}),60);
+    }
+  }
 
   /* ============ 方法论元数据 ============ */
   function renderMethod(){
@@ -678,7 +686,7 @@
     router();
     // 平滑滚动锚点偏移
     $$('a[href^="#"]').forEach(a=>{
-      if(a.id==='matchBack'||a.id==='teamBack') return; // 返回按钮走独立逻辑，避免被平滑滚动 preventDefault 拦截
+      if(a.id==='matchBack') return; // 返回按钮走独立逻辑，避免被平滑滚动 preventDefault 拦截
       a.addEventListener('click',e=>{
         const id=a.getAttribute('href');
         if(id.length>1){ const el=$(id); if(el){ e.preventDefault(); el.scrollIntoView({behavior:'smooth'}); } }
@@ -689,13 +697,6 @@
     if(back) back.addEventListener('click',e=>{
       e.preventDefault();
       closeMatch();
-      history.replaceState(null,'',location.pathname+location.search);
-      window.scrollTo({top:0,behavior:'smooth'});
-    });
-    const tback=$('#teamBack');
-    if(tback) tback.addEventListener('click',e=>{
-      e.preventDefault();
-      closeTeam();
       history.replaceState(null,'',location.pathname+location.search);
       window.scrollTo({top:0,behavior:'smooth'});
     });

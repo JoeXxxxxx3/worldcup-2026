@@ -188,6 +188,9 @@ ul{list-style:none}
 .power-bar__fill{height:100%;width:0;background:linear-gradient(90deg,var(--gold),#F4D27A);border-radius:4px;transition:width 1.1s var(--ease) .15s}
 .power-pct{font-family:var(--fm);font-size:17px;font-weight:700;color:var(--gold);text-align:right}
 .power-note{margin-top:24px;font-size:12.5px;color:var(--text-mute)}
+.power-detail{padding:22px 22px 26px;margin-top:-1px;background:var(--surface-2);border:1px solid var(--line);border-top:0;border-radius:0 0 var(--r) var(--r);overflow:hidden;animation:pd-open .32s var(--ease)}
+.power-row.is-open{border-color:var(--gold-line);border-radius:var(--r) var(--r) 0 0;background:linear-gradient(90deg,var(--gold-soft),var(--surface) 45%)}
+@keyframes pd-open{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
 
 /* 模型战绩（命中率） */
 .accuracy{display:flex;flex-direction:column;gap:22px}
