@@ -2,7 +2,7 @@
    2026 世界杯预言 — 渲染层
    ============================================================ */
 (function(){
-  const { META, TEAMS, GROUPS, KNOCKOUT, CHAMPION_PATH, PROFILES } = window.WC;
+  const { META, TEAMS, GROUPS, KNOCKOUT, CHAMPION_PATH, PROFILES, FIFA_RANK, STARS, PLAYER_AWARDS } = window.WC;
   // 记录初始实力分，用于 Elo 动态调整后的涨跌显示
   Object.keys(TEAMS).forEach(c => { TEAMS[c].r0 = TEAMS[c].r; });
 
@@ -94,6 +94,22 @@
       r.addEventListener('click',()=>toggleTeam(r.dataset.team,r));
       r.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleTeam(r.dataset.team,r);}});
     });
+  }
+
+  /* ============ 球员榜（金靴 / 助攻） ============ */
+  function renderPlayerAwards(){
+    const row = (p,i,unit)=>`<div class="pa-row"><span class="pa-rank">${i+1}</span><span class="pa-flag">${flagImg(p.c,40,'')}</span><div class="pa-info"><b>${p.n}</b><small>${p.t} · ${p.club}</small></div><span class="pa-stat">${unit==='g'?p.g:p.a}<i>${unit==='g'?'球':'助'}</i></span></div>`;
+    $('#paDate').textContent = PLAYER_AWARDS.updated;
+    $('#paWrap').innerHTML = `
+      <div class="pa-card">
+        <h3>👟 金靴榜 <small>TOP SCORERS</small></h3>
+        ${PLAYER_AWARDS.scorers.map((p,i)=>row(p,i,'g')).join('')}
+      </div>
+      <div class="pa-card">
+        <h3>🎯 助攻榜 <small>ASSISTS</small></h3>
+        ${PLAYER_AWARDS.assists.map((p,i)=>row(p,i,'a')).join('')}
+      </div>
+    `;
   }
 
   /* ============ 模型战绩（命中率） ============ */
@@ -425,7 +441,7 @@
         <div class="tv-flag">${flagImg(code,160)}</div>
         <div style="flex:1;min-width:0">
           <div class="tv-title">${t.n}</div>
-          <div class="tv-sub">${t.g}组 · ${tier} · Elo ${Math.round(elo)} · ${p?p.title:'世界杯参赛队'}</div>
+          <div class="tv-sub">${t.g}组 · ${tier} · Elo ${Math.round(elo)}${FIFA_RANK[code]?` · FIFA 第${FIFA_RANK[code]}`:''} · ${p?p.title:'世界杯参赛队'}</div>
           <div class="tv-stats">
             <div class="tv-stat"><b>${t.r.toFixed(1)}</b><small>实力分</small></div>
             <div class="tv-stat"><b>${t.oDyn.toFixed(1)}%</b><small>夺冠概率</small></div>
@@ -479,9 +495,9 @@
       </div>
       <div class="mv-grid">
         <div class="mv-card">
-          <h3>核心阵容 <small>${p?'深度档案':'参考 ESPN/FIFA 名单'}</small></h3>
-          <div class="tv-squad">${p?p.core:'该队 26 人名单详见 ESPN/FIFA 官方。当前展示基于实力分、已赛战绩与四因子模型的实时评估。'}</div>
-          ${p?`<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-size:12.5px;color:var(--text-mute);line-height:1.75">${p.history}</div>`:''}
+          <h3>核心球员 <small>${STARS[code]?'2025-26 阵容':'参考 ESPN/FIFA'}</small></h3>
+          ${STARS[code]?`<div class="tv-stars">${STARS[code].map(s=>{const pn={GK:'门',DF:'卫',MF:'中',FW:'锋'}[s.p];return `<div class="tv-star"><span class="tv-star__pos p${s.p}">${pn}</span><div class="tv-star__info"><b>${s.n}</b><small>${s.c}</small></div></div>`;}).join('')}</div>`:`<div class="tv-squad">${p?p.core:'该队 26 人名单详见 ESPN/FIFA 官方。'}</div>`}
+          ${p?`<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:12px;color:var(--text-mute);line-height:1.7">${p.history}</div>`:''}
         </div>
         <div class="mv-card">
           <h3>小组赛赛程 <small>3 场</small></h3>
@@ -726,6 +742,7 @@
     dynamicKO = buildKnockout();
     renderHero();
     renderPower();
+    renderPlayerAwards();
     renderGroups();
     renderBracket();
     renderPath();
