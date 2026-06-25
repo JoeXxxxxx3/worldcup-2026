@@ -348,7 +348,7 @@
     const champ = onChampPath(h,a);
     const cls = ['ko-card', isFinal?'is-final':'', focus?'is-focus':'', champ?'is-champ':''].filter(Boolean).join(' ');
     const winH = w===h, winA = w===a;
-    return `<div class="${cls}">
+    return `<div class="${cls}" data-h="${h}" data-a="${a}" role="button" tabindex="0" style="cursor:pointer">
       ${focus?`<span class="focus-tag">焦点战</span>`:''}
       <div class="ko-card__round">${roundLabel}${d?`<span class="ko-card__date">${d}</span>`:''}</div>
       <div class="ko-team ${winH?'win':'lose'}">
@@ -389,6 +389,68 @@
         ${koCard(ko.final[0],'',true)}
         <div style="margin-top:18px"><div class="bracket__col-title" style="opacity:.6">季军战</div>${koCard(ko.third[0],'')}</div>
        </div>`;
+    $$('.ko-card').forEach(c=>c.addEventListener('click',()=>openKOMatch(c.dataset.h,c.dataset.a)));
+  }
+
+  /* ============ 淘汰赛对决详情（点 ko-card 弹出，含历史交锋） ============ */
+  function openKOMatch(h,a){
+    if(!h||!a||!TEAMS[h]||!TEAMS[a]) return;
+    $('#matchViewTitle').textContent = `${TEAMS[h].n} vs ${TEAMS[a].n}`;
+    $('#matchBody').innerHTML = koMatchHTML(h,a);
+    $('#matchView').hidden=false;
+    document.body.style.overflow='hidden';
+    window.scrollTo(0,0);
+  }
+  function koMatchHTML(h,a){
+    const th=TEAMS[h], ta=TEAMS[a];
+    const ko = dynamicKO || KNOCKOUT;
+    const labels={r32:'32强',r16:'16强',qf:'8强',sf:'半决赛',final:'决赛',third:'季军战'};
+    let match=null, label='';
+    for(const r of Object.keys(labels)){
+      const found=(ko[r]||[]).find(m=>(m.h===h&&m.a===a)||(m.h===a&&m.a===h));
+      if(found){match=found;label=labels[r];break;}
+    }
+    const [lh,la]=lambdas(th.r,ta.r,false);
+    const eh=ELO(th.r), ea=ELO(ta.r);
+    const h2h=H2H[`${h}-${a}`]||H2H[`${a}-${h}`];
+    const pw=Math.round(1/(1+Math.pow(10,(ta.r-th.r)/30))*100);
+    const pl=Math.round(1/(1+Math.pow(10,(th.r-ta.r)/30))*100);
+    const pd=Math.max(8,100-pw-pl);
+    const N=6,mat=[];
+    for(let i=0;i<N;i++){mat[i]=[];for(let j=0;j<N;j++)mat[i][j]=poissonPmf(i,lh)*poissonPmf(j,la)*100;}
+    const flat=[];for(let i=0;i<N;i++)for(let j=0;j<N;j++)flat.push({s:i+'-'+j,p:mat[i][j]});
+    flat.sort((x,y)=>y.p-x.p);const top5=flat.slice(0,5);
+    return `
+      <div class="mv-head">
+        <div class="mv-meta">${label||'淘汰赛'}${match?` · ${match.d||''}${match.v?' · '+match.v:''}`:''} · 模型推演</div>
+        <div class="mv-scoreboard">
+          <div class="mv-team"><div class="mv-flag">${flagImg(h,160)}</div><div class="mv-name">${th.n}</div><div class="mv-elo">Elo ${eh} · 实力 ${th.r.toFixed(1)}</div></div>
+          <div class="mv-score pred">${match?`${match.hs}<span>:</span>${match.as}`:'<small>待定</small>'}</div>
+          <div class="mv-team"><div class="mv-flag">${flagImg(a,160)}</div><div class="mv-name">${ta.n}</div><div class="mv-elo">Elo ${ea} · 实力 ${ta.r.toFixed(1)}</div></div>
+        </div>
+      </div>
+      <div class="mv-grid">
+        <div class="mv-card">
+          <h3>三态概率 <small>融合模型</small></h3>
+          <div class="tri-bar"><div class="tri tri-w" style="width:${pw}%">${th.n} ${pw}%</div><div class="tri tri-d" style="width:${pd}%">平 ${pd}%</div><div class="tri tri-l" style="width:${pl}%">${ta.n} ${pl}%</div></div>
+          <div class="mv-xg">期望进球 <b>${lh.toFixed(2)}</b> : <b>${la.toFixed(2)}</b></div>
+        </div>
+        <div class="mv-card">
+          <h3>最可能比分 <small>泊松模型</small></h3>
+          <div class="mv-top5">${top5.map(t=>`<span class="topscore"><b>${t.s}</b><i>${t.p.toFixed(1)}%</i></span>`).join('')}</div>
+        </div>
+      </div>
+      ${match&&match.note?`<div class="mv-card mv-read"><h3>🤖 模型解读</h3><div style="font-size:14px;line-height:1.8;color:var(--text-dim)">${match.note}${match.et?'（势均力敌，预测经加时决出）':''}</div></div>`:''}
+      ${h2h?`<div class="mv-card"><h3>历史交锋 <small>${th.n} vs ${ta.n}</small></h3>
+        <div class="tv-h2h">
+          <div class="tv-h2h-head"><b>${h2h.total}</b></div>
+          <div class="tv-h2h-wc"><i>世界杯</i>${h2h.wc}</div>
+          <div class="tv-h2h-last"><i>最近</i>${h2h.last}</div>
+          <div class="tv-h2h-tag">${h2h.tag}</div>
+        </div>
+      </div>`:''}
+      <div class="mv-note">※ 淘汰赛为模型推演（实力差 + 泊松模拟）；历史交锋来自 Wikipedia/Transfermarkt。随小组出线确定，对阵与预测自动更新。</div>
+    `;
   }
 
   /* ============ 5. 冠军之路时间线 ============ */
