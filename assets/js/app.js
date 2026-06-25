@@ -597,10 +597,19 @@
     router();
     // 平滑滚动锚点偏移
     $$('a[href^="#"]').forEach(a=>{
+      if(a.id==='matchBack') return; // 返回赛程按钮走独立逻辑，避免被平滑滚动 preventDefault 拦截
       a.addEventListener('click',e=>{
         const id=a.getAttribute('href');
         if(id.length>1){ const el=$(id); if(el){ e.preventDefault(); el.scrollIntoView({behavior:'smooth'}); } }
       });
+    });
+    // 返回赛程：关闭详情弹层 + 清 hash + 回顶部（修复原 href="#groups" 被滚动拦截致点击无反应）
+    const back=$('#matchBack');
+    if(back) back.addEventListener('click',e=>{
+      e.preventDefault();
+      closeMatch();
+      history.replaceState(null,'',location.pathname+location.search);
+      window.scrollTo({top:0,behavior:'smooth'});
     });
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init);
