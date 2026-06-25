@@ -78,7 +78,7 @@
       .sort((a,b)=>b.oDyn-a.oDyn);
     const max = ranked[0].oDyn;
     $('#powerList').innerHTML = ranked.map((t,i)=>`
-      <div class="power-row reveal ${i<3?'is-top':''}">
+      <div class="power-row reveal ${i<3?'is-top':''}" data-team="${t.c}" role="button" tabindex="0" aria-label="${t.n}实力档案">
         <div class="power-rank">${String(i+1).padStart(2,'0')}</div>
         <div class="power-main">
           ${flagImg(t.c,80,'power-flag')}
@@ -89,6 +89,10 @@
         </div>
         <div class="power-pct">${t.oDyn.toFixed(1)}%</div>
       </div>`).join('');
+    $$('#powerList .power-row').forEach(r=>{
+      r.addEventListener('click',()=>openTeam(r.dataset.team));
+      r.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openTeam(r.dataset.team);}});
+    });
   }
 
   /* ============ 模型战绩（命中率） ============ */
@@ -368,6 +372,83 @@
       </div>`).join('');
   }
 
+  /* ============ 球队详情弹层（夺冠概率榜点击展开） ============ */
+  function openTeam(code){
+    const t = TEAMS[code];
+    if(!t) return;
+    const p = PROFILES.find(x=>x.c===code);
+    const elo = ELO(t.r);
+    const delta = t.r - (t.r0||t.r);
+    const grp = Object.entries(TEAMS).filter(([_,x])=>x.g===t.g).map(([c,x])=>({c,r:x.r})).sort((a,b)=>b.r-a.r);
+    const grpRank = grp.findIndex(x=>x.c===code)+1;
+    const tier = t.r>=85?'顶级豪门':t.r>=78?'争冠热门':t.r>=68?'中上游':t.r>=58?'中游':'弱旅';
+    const formPct = Math.max(8, Math.min(100, 50 + delta*8));
+    const formTxt = delta>0.5?`势头上升 ↑${delta.toFixed(1)}`:delta<-0.5?`回落 ↓${Math.abs(delta).toFixed(1)}`:'走势平稳';
+    const isHost = META.host.includes(t.n);
+    const grpPct = (5-grpRank)/4*100;
+    const grpRole = grpRank===1?'出线大热':grpRank===2?'直接竞争者':'出线边缘';
+    $('#teamViewTitle').textContent = `${t.n} · 实力档案`;
+    $('#teamBody').innerHTML = `
+      <div class="tv-head">
+        <div class="tv-flag">${flagImg(code,128)}</div>
+        <div style="flex:1;min-width:0">
+          <div class="tv-title">${t.n}</div>
+          <div class="tv-sub">${t.g}组 · ${tier} · Elo ${Math.round(elo)} · ${p?p.title:'世界杯参赛队'}</div>
+          <div class="tv-stats">
+            <div class="tv-stat"><b>${t.r.toFixed(1)}</b><small>实力分</small></div>
+            <div class="tv-stat"><b>${t.oDyn.toFixed(1)}%</b><small>夺冠概率</small></div>
+            <div class="tv-stat"><b>${delta>=0?'+':''}${delta.toFixed(1)}</b><small>已赛调整</small></div>
+            <div class="tv-stat"><b>${grpRank}/4</b><small>组内排名</small></div>
+          </div>
+        </div>
+      </div>
+      <div class="mv-grid">
+        <div class="mv-card">
+          <h3>排名分数组成 <small>四因子驱动</small></h3>
+          <div class="tv-factor">
+            <div class="tv-factor__label">基础实力 ELO<small>权重 45% · Opta+赔率</small></div>
+            <div class="tv-factor__bar"><div class="tv-factor__fill" style="width:${t.r}%"></div></div>
+            <div class="tv-factor__val"><b>${t.r.toFixed(1)}</b>${tier}</div>
+          </div>
+          <div class="tv-factor">
+            <div class="tv-factor__label">当前赛事状态<small>权重 25% · 已赛 Elo</small></div>
+            <div class="tv-factor__bar"><div class="tv-factor__fill ${delta<0?'bad':''}" style="width:${formPct}%"></div></div>
+            <div class="tv-factor__val"><b>${formTxt}</b>净 ${delta>=0?'+':''}${delta.toFixed(1)}</div>
+          </div>
+          <div class="tv-factor">
+            <div class="tv-factor__label">战术克制<small>权重 15% · 组内卡位</small></div>
+            <div class="tv-factor__bar"><div class="tv-factor__fill dim" style="width:${grpPct}%"></div></div>
+            <div class="tv-factor__val"><b>${t.g}组第${grpRank}</b>${grpRole}</div>
+          </div>
+          <div class="tv-factor">
+            <div class="tv-factor__label">伤病 / 主场<small>权重 15% · 外部变量</small></div>
+            <div class="tv-factor__bar"><div class="tv-factor__fill ${isHost?'':'dim'}" style="width:${isHost?100:55}%"></div></div>
+            <div class="tv-factor__val"><b>${isHost?'东道主加成':'中立场'}</b>${isHost?'主场之利':'无主场分'}</div>
+          </div>
+        </div>
+        <div class="mv-card">
+          <h3>核心阵容 <small>${p?'深度档案':'数据整理中'}</small></h3>
+          <div class="tv-squad">${p?p.core:'该队详细阵容与战术档案尚在整理。当前展示基于实力分、已赛战绩与四因子模型的实时评估。'}</div>
+          ${p?`<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-size:12.5px;color:var(--text-mute);line-height:1.75">${p.history}</div>`:''}
+        </div>
+      </div>
+      <div class="mv-card">
+        <h3>本届世界杯战绩 <small>真实已赛</small></h3>
+        <div class="mv-form"><div class="mv-form-col"><div class="mv-form-head">${flagImg(code,64)}<span>${t.n} 已赛场次</span></div>${renderFormRows(code)}</div></div>
+      </div>
+      ${p?`<div class="mv-card"><h3>模型研判 <small>优势 vs 风险</small></h3>
+        <div class="tv-analysis">
+          <div class="tv-analysis__item up"><h4>▲ 核心优势</h4>${p.edge}</div>
+          <div class="tv-analysis__item dn"><h4>▼ 潜在风险</h4>${p.risk}</div>
+        </div></div>`:''}
+      <div class="mv-note">※ 实力分与夺冠概率基于四因子模型（ELO 45% + 当前状态 25% + 战术 15% + 伤病主场 15%）叠加 25,000 次蒙特卡洛模拟；已赛 Elo 动态调整实时反映本届战绩。</div>
+    `;
+    $('#teamView').hidden=false;
+    document.body.style.overflow='hidden';
+    window.scrollTo(0,0);
+  }
+  function closeTeam(){ $('#teamView').hidden=true; document.body.style.overflow=''; }
+
   /* ============ 方法论元数据 ============ */
   function renderMethod(){
     $('#methodMeta').innerHTML = `
@@ -597,7 +678,7 @@
     router();
     // 平滑滚动锚点偏移
     $$('a[href^="#"]').forEach(a=>{
-      if(a.id==='matchBack') return; // 返回赛程按钮走独立逻辑，避免被平滑滚动 preventDefault 拦截
+      if(a.id==='matchBack'||a.id==='teamBack') return; // 返回按钮走独立逻辑，避免被平滑滚动 preventDefault 拦截
       a.addEventListener('click',e=>{
         const id=a.getAttribute('href');
         if(id.length>1){ const el=$(id); if(el){ e.preventDefault(); el.scrollIntoView({behavior:'smooth'}); } }
@@ -608,6 +689,13 @@
     if(back) back.addEventListener('click',e=>{
       e.preventDefault();
       closeMatch();
+      history.replaceState(null,'',location.pathname+location.search);
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+    const tback=$('#teamBack');
+    if(tback) tback.addEventListener('click',e=>{
+      e.preventDefault();
+      closeTeam();
       history.replaceState(null,'',location.pathname+location.search);
       window.scrollTo({top:0,behavior:'smooth'});
     });
