@@ -380,7 +380,8 @@
     const p = PROFILES.find(x=>x.c===code);
     const elo = ELO(t.r);
     const delta = t.r - (t.r0||t.r);
-    const grp = Object.entries(TEAMS).filter(([_,x])=>x.g===t.g).map(([c,x])=>({c,r:x.r})).sort((a,b)=>b.r-a.r);
+    const grpCodes = Object.keys(TEAMS).filter(c=>TEAMS[c].g===t.g);
+    const grp = grpCodes.map(c=>({c,r:TEAMS[c].r})).sort((a,b)=>b.r-a.r);
     const grpRank = grp.findIndex(x=>x.c===code)+1;
     const tier = t.r>=85?'顶级豪门':t.r>=78?'争冠热门':t.r>=68?'中上游':t.r>=58?'中游':'弱旅';
     const formPct = Math.max(8, Math.min(100, 50 + delta*8));
@@ -388,9 +389,40 @@
     const isHost = META.host.includes(t.n);
     const grpPct = (5-grpRank)/4*100;
     const grpRole = grpRank===1?'出线大热':grpRank===2?'直接竞争者':'出线边缘';
+    /* 小组积分榜（该组已赛实时） */
+    const stand = grpCodes.map(c=>{
+      const row={c,pts:0,gf:0,ga:0,gp:0,w:0,d:0,l:0};
+      GROUPS.forEach(m=>{
+        if(m[0]!==t.g||m[7]!==1) return;
+        const isH=m[3]===c, isA=m[4]===c;
+        if(!isH&&!isA) return;
+        const gf=isH?m[5]:m[6], ga=isH?m[6]:m[5];
+        row.gp++; row.gf+=gf; row.ga+=ga;
+        if(gf>ga){row.pts+=3;row.w++} else if(gf===ga){row.pts+=1;row.d++} else row.l++;
+      });
+      row.gd=row.gf-row.ga; return row;
+    }).sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf);
+    /* 该队攻防数据 */
+    const myM = GROUPS.filter(m=>(m[3]===code||m[4]===code)&&m[7]===1);
+    let gf=0,ga=0,win=0,draw=0,loss=0;
+    myM.forEach(m=>{
+      const isH=m[3]===code; const f=isH?m[5]:m[6], a=isH?m[6]:m[5];
+      gf+=f; ga+=a; if(f>a)win++; else if(f<a)loss++; else draw++;
+    });
+    const gd=gf-ga;
+    /* 小组赛赛程（3 场，已赛比分 / 未赛预测） */
+    const fixHTML = GROUPS.filter(m=>m[3]===code||m[4]===code).map(m=>{
+      const isH=m[3]===code, opp=isH?m[4]:m[3], played=m[7]===1;
+      const f=isH?m[5]:m[6], a=isH?m[6]:m[5];
+      const tag=played?(f>a?'胜':f<a?'负':'平'):'未赛';
+      const tagCls=played?(f>a?'w':f<a?'l':'d'):'p';
+      const wPct=isH?m[8]:m[10], lPct=isH?m[10]:m[8];
+      const sc=played?`${f} : ${a}`:`胜${wPct}·平${m[9]}·负${lPct}`;
+      return `<div class="tv-fix"><span class="tv-fix__tag ${tagCls}">${tag}</span><span class="tv-fix__vs">${isH?'主':'客'} ${flagImg(opp,40,'tv-flag-sm')}${TEAMS[opp].n}</span><span class="tv-fix__sc ${played?'':'pred'}">${sc}</span></div>`;
+    }).join('');
     return `
       <div class="tv-head">
-        <div class="tv-flag">${flagImg(code,96)}</div>
+        <div class="tv-flag">${flagImg(code,160)}</div>
         <div style="flex:1;min-width:0">
           <div class="tv-title">${t.n}</div>
           <div class="tv-sub">${t.g}组 · ${tier} · Elo ${Math.round(elo)} · ${p?p.title:'世界杯参赛队'}</div>
@@ -398,50 +430,70 @@
             <div class="tv-stat"><b>${t.r.toFixed(1)}</b><small>实力分</small></div>
             <div class="tv-stat"><b>${t.oDyn.toFixed(1)}%</b><small>夺冠概率</small></div>
             <div class="tv-stat"><b>${delta>=0?'+':''}${delta.toFixed(1)}</b><small>已赛调整</small></div>
-            <div class="tv-stat"><b>${grpRank}/4</b><small>组内排名</small></div>
+            <div class="tv-stat"><b>${win}-${draw}-${loss}</b><small>战绩</small></div>
           </div>
         </div>
       </div>
       <div class="mv-grid">
         <div class="mv-card">
-          <h3>排名分数组成 <small>四因子驱动</small></h3>
-          <div class="tv-factor">
-            <div class="tv-factor__label">基础实力 ELO<small>权重 45% · Opta+赔率</small></div>
-            <div class="tv-factor__bar"><div class="tv-factor__fill" style="width:${t.r}%"></div></div>
-            <div class="tv-factor__val"><b>${t.r.toFixed(1)}</b>${tier}</div>
-          </div>
-          <div class="tv-factor">
-            <div class="tv-factor__label">当前赛事状态<small>权重 25% · 已赛 Elo</small></div>
-            <div class="tv-factor__bar"><div class="tv-factor__fill ${delta<0?'bad':''}" style="width:${formPct}%"></div></div>
-            <div class="tv-factor__val"><b>${formTxt}</b>净 ${delta>=0?'+':''}${delta.toFixed(1)}</div>
-          </div>
-          <div class="tv-factor">
-            <div class="tv-factor__label">战术克制<small>权重 15% · 组内卡位</small></div>
-            <div class="tv-factor__bar"><div class="tv-factor__fill dim" style="width:${grpPct}%"></div></div>
-            <div class="tv-factor__val"><b>${t.g}组第${grpRank}</b>${grpRole}</div>
-          </div>
-          <div class="tv-factor">
-            <div class="tv-factor__label">伤病 / 主场<small>权重 15% · 外部变量</small></div>
-            <div class="tv-factor__bar"><div class="tv-factor__fill ${isHost?'':'dim'}" style="width:${isHost?100:55}%"></div></div>
-            <div class="tv-factor__val"><b>${isHost?'东道主加成':'中立场'}</b>${isHost?'主场之利':'无主场分'}</div>
-          </div>
+          <h3>${t.g}组积分榜 <small>已赛实时</small></h3>
+          <table class="tv-table">
+            <thead><tr><th style="text-align:left">球队</th><th>赛</th><th>胜</th><th>平</th><th>负</th><th>进</th><th>失</th><th>净</th><th>分</th></tr></thead>
+            <tbody>${stand.map(s=>`<tr class="${s.c===code?'tv-me':''}"><td><span class="tv-flag-sm">${flagImg(s.c,40,'')}</span>${TEAMS[s.c].n}</td><td>${s.gp}</td><td>${s.w}</td><td>${s.d}</td><td>${s.l}</td><td>${s.gf}</td><td>${s.ga}</td><td style="color:${s.gd>=0?'var(--win)':'var(--loss)'}">${s.gd>0?'+':''}${s.gd}</td><td class="tv-pts">${s.pts}</td></tr>`).join('')}</tbody>
+          </table>
         </div>
         <div class="mv-card">
-          <h3>核心阵容 <small>${p?'深度档案':'数据整理中'}</small></h3>
-          <div class="tv-squad">${p?p.core:'该队详细阵容与战术档案尚在整理。当前展示基于实力分、已赛战绩与四因子模型的实时评估。'}</div>
-          ${p?`<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-size:12.5px;color:var(--text-mute);line-height:1.75">${p.history}</div>`:''}
+          <h3>攻防数据 <small>已赛 ${myM.length} 场</small></h3>
+          <div class="tv-wdl">
+            <span class="w"><b>${win}</b><small>胜</small></span>
+            <span class="d"><b>${draw}</b><small>平</small></span>
+            <span class="l"><b>${loss}</b><small>负</small></span>
+          </div>
+          <div class="tv-statrow"><span>进球 / 失球</span><b>${gf} / ${ga}</b></div>
+          <div class="tv-statrow"><span>净胜球</span><b style="color:${gd>=0?'var(--win)':'var(--loss)'}">${gd>0?'+':''}${gd}</b></div>
+          <div class="tv-statrow"><span>场均进 / 失</span><b>${myM.length?(gf/myM.length).toFixed(2):'—'} / ${myM.length?(ga/myM.length).toFixed(2):'—'}</b></div>
         </div>
       </div>
       <div class="mv-card">
-        <h3>本届世界杯战绩 <small>真实已赛</small></h3>
-        <div class="mv-form"><div class="mv-form-col"><div class="mv-form-head">${flagImg(code,64)}<span>${t.n} 已赛场次</span></div>${renderFormRows(code)}</div></div>
+        <h3>排名分数组成 <small>四因子驱动</small></h3>
+        <div class="tv-factor">
+          <div class="tv-factor__label">基础实力 ELO<small>权重 45% · Opta+赔率</small></div>
+          <div class="tv-factor__bar"><div class="tv-factor__fill" style="width:${t.r}%"></div></div>
+          <div class="tv-factor__val"><b>${t.r.toFixed(1)}</b>${tier}</div>
+        </div>
+        <div class="tv-factor">
+          <div class="tv-factor__label">当前赛事状态<small>权重 25% · 已赛 Elo</small></div>
+          <div class="tv-factor__bar"><div class="tv-factor__fill ${delta<0?'bad':''}" style="width:${formPct}%"></div></div>
+          <div class="tv-factor__val"><b>${formTxt}</b>净 ${delta>=0?'+':''}${delta.toFixed(1)}</div>
+        </div>
+        <div class="tv-factor">
+          <div class="tv-factor__label">战术克制<small>权重 15% · 组内卡位</small></div>
+          <div class="tv-factor__bar"><div class="tv-factor__fill dim" style="width:${grpPct}%"></div></div>
+          <div class="tv-factor__val"><b>${t.g}组第${grpRank}</b>${grpRole}</div>
+        </div>
+        <div class="tv-factor">
+          <div class="tv-factor__label">伤病 / 主场<small>权重 15% · 外部变量</small></div>
+          <div class="tv-factor__bar"><div class="tv-factor__fill ${isHost?'':'dim'}" style="width:${isHost?100:55}%"></div></div>
+          <div class="tv-factor__val"><b>${isHost?'东道主加成':'中立场'}</b>${isHost?'主场之利':'无主场分'}</div>
+        </div>
+      </div>
+      <div class="mv-grid">
+        <div class="mv-card">
+          <h3>核心阵容 <small>${p?'深度档案':'参考 ESPN/FIFA 名单'}</small></h3>
+          <div class="tv-squad">${p?p.core:'该队 26 人名单详见 ESPN/FIFA 官方。当前展示基于实力分、已赛战绩与四因子模型的实时评估。'}</div>
+          ${p?`<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-size:12.5px;color:var(--text-mute);line-height:1.75">${p.history}</div>`:''}
+        </div>
+        <div class="mv-card">
+          <h3>小组赛赛程 <small>3 场</small></h3>
+          ${fixHTML}
+        </div>
       </div>
       ${p?`<div class="mv-card"><h3>模型研判 <small>优势 vs 风险</small></h3>
         <div class="tv-analysis">
           <div class="tv-analysis__item up"><h4>▲ 核心优势</h4>${p.edge}</div>
           <div class="tv-analysis__item dn"><h4>▼ 潜在风险</h4>${p.risk}</div>
         </div></div>`:''}
-      <div class="mv-note">※ 实力分与夺冠概率基于四因子模型（ELO 45% + 当前状态 25% + 战术 15% + 伤病主场 15%）叠加 25,000 次蒙特卡洛模拟；已赛 Elo 动态调整实时反映本届战绩。<b>再点该行可收起</b></div>
+      <div class="mv-note">※ 实力分与夺冠概率基于四因子模型（ELO 45% + 当前状态 25% + 战术 15% + 伤病主场 15%）+ 25,000 次蒙特卡洛；积分榜 / 攻防 / 赛程为本届真实数据，已赛 Elo 动态调整。<b>再点该行可收起</b></div>
     `;
   }
   function toggleTeam(code,row){
