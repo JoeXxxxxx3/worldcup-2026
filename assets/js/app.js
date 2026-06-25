@@ -416,13 +416,23 @@
       if(!res.ok) return;
       const data = await res.json();
       const map = {};
-      data.forEach(r => { if(r.played === 1) map[r.h + '_' + r.a] = r; });
+      let latest = '';
+      data.forEach(r => {
+        if(r.played !== 1) return;
+        map[r.h + '_' + r.a] = r;
+        if(r.d && r.d > latest) latest = r.d;
+        // 反向视角：ESPN 的主客顺序未必与本站 GROUPS 一致（例：加拿大 vs 瑞士，
+        // 本站按举办地记加拿大为主场，ESPN 可能记瑞士为 home）。建立反向 key 并
+        // 交换比分，确保无论哪队在前都能正确合并，避免"已赛却仍显示预测"。
+        map[r.a + '_' + r.h] = { h:r.a, a:r.h, hs:r.as, as:r.hs, played:1 };
+      });
       let n = 0;
       GROUPS.forEach(m => {
         const r = map[m[3] + '_' + m[4]];
         if(r){ m[5] = r.hs; m[6] = r.as; m[7] = 1; n++; }
       });
-      if(n) console.log(`✓ 实时赛果已合并 ${n} 场`);
+      if(latest){ META.updated = latest; META.modelUpdate = latest; }
+      if(n) console.log(`✓ 实时赛果已合并 ${n} 场，截至 ${latest || META.updated}`);
     }catch(e){ console.warn('results.json 未加载，使用内置数据'); }
   }
 

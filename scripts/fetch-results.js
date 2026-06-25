@@ -40,7 +40,7 @@ async function main() {
       const key = h + '_' + a;
       if (seen.has(key)) continue;
       seen.add(key);
-      results.push({ h, a, hs: +home.score, as: +away.score, played: 1 });
+      results.push({ h, a, hs: +home.score, as: +away.score, played: 1, d: d.slice(0,4)+'-'+d.slice(4,6)+'-'+d.slice(6,8) });
     }
   }
   fs.mkdirSync(path.dirname(OUT), { recursive: true });
