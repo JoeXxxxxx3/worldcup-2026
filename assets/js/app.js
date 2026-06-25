@@ -174,6 +174,29 @@
     });
     return Object.values(t).map(x=>({...x,pts:x.w*3+x.d,gd:x.gf-x.ga})).sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf);
   }
+  /* 基于「已赛」判断每队是否已锁定出线/出局：枚举未赛所有胜负平组合，
+     若该队所有组合都前2 → in(锁定出线)；都进不了前2 → out(锁定出局)；否则 maybe */
+  function qualifyStatus(g){
+    const ms = GROUPS.filter(m=>m[0]===g);
+    const teams = [...new Set(ms.flatMap(m=>[m[3],m[4]]))];
+    const played = ms.filter(m=>m[7]===1);
+    if(!played.length) return {};
+    const unplayed = ms.filter(m=>m[7]!==1);
+    const base = {}; teams.forEach(c=>base[c]=0);
+    played.forEach(m=>{ const hs=m[5],as=m[6]; if(hs>as)base[m[3]]+=3; else if(hs<as)base[m[4]]+=3; else{base[m[3]]++;base[m[4]]++;} });
+    let combos=[[]];
+    unplayed.forEach(()=>{ const n=[]; ['h','d','a'].forEach(r=>combos.forEach(c=>n.push([...c,r]))); combos=n; });
+    if(combos.length>3000) return {}; // 组合过多（开赛初期未赛多）跳过，避免卡顿
+    const worst={},best={}; teams.forEach(c=>{worst[c]=0;best[c]=99;});
+    combos.forEach(combo=>{
+      const pts={...base};
+      unplayed.forEach((m,i)=>{ const r=combo[i]; if(r==='h')pts[m[3]]+=3; else if(r==='a')pts[m[4]]+=3; else{pts[m[3]]++;pts[m[4]]++;} });
+      const ranked=[...teams].sort((a,b)=>pts[b]-pts[a]);
+      teams.forEach(c=>{ const rk=ranked.indexOf(c)+1; if(rk>worst[c])worst[c]=rk; if(rk<best[c])best[c]=rk; });
+    });
+    const st={}; teams.forEach(c=>{ st[c]=worst[c]<=2?'in':(best[c]>2?'out':'maybe'); });
+    return st;
+  }
 
   function matchCard(m, idx){
     const [g,v,h_,h,a,hs,as,played,pw,pd,pl,ts] = m;
@@ -202,19 +225,29 @@
     // 各组
     const html = codes.map(c=>{
       const ms = GROUPS.filter(m=>m[0]===c);
-      const standings = calcStandings(ms);
-      const qualified = standings.slice(0,2);
-      const third = standings[2];
+      const playedMs = ms.filter(m=>m[7]===1);
+      const realStand = calcStandings(playedMs);       // 已赛真实积分
+      const predictStand = calcStandings(ms);           // 含未赛预测（预测最终出线）
+      const qStatus = qualifyStatus(c);
+      const lockedIn = Object.keys(qStatus).filter(k=>qStatus[k]==='in');
+      const lockedOut = Object.keys(qStatus).filter(k=>qStatus[k]==='out');
+      const predTop2 = predictStand.slice(0,2).map(t=>t.c).filter(x=>qStatus[x]!=='in');
+      const tagOf = code => qStatus[code]==='in'?'<span class="q-tag q-in">已出线</span>':qStatus[code]==='out'?'<span class="q-tag q-out">已出局</span>':'';
+      const metaParts = [];
+      if(lockedIn.length) metaParts.push(`<span class="qm qm-in">✅ 已出线 ${lockedIn.map(x=>TEAMS[x].n).join('/')}</span>`);
+      if(lockedOut.length) metaParts.push(`<span class="qm qm-out">❌ 已出局 ${lockedOut.map(x=>TEAMS[x].n).join('/')}</span>`);
+      if(predTop2.length) metaParts.push(`<span class="qm qm-pred">🔮 预测 ${predTop2.map(x=>TEAMS[x].n).join('/')}</span>`);
+      if(!metaParts.length) metaParts.push('<span class="qm">开赛待定</span>');
       return `<div class="group-block reveal ${c!=='A'?'hide':''}" data-block="${c}">
         <div class="group-block__head">
           <div class="group-block__title"><em>${c}</em>组</div>
-          <div class="group-block__meta">出线：${qualified.map(t=>TEAMS[t.c].n).join('、')}${third&&third.pts>=4?` · 最佳第三候选 ${TEAMS[third.c].n}`:''}</div>
+          <div class="group-block__meta">${metaParts.join(' ')}</div>
         </div>
-        ${standings.length?`<table class="standings"><tbody>${
-          standings.map((t,i)=>`<tr class="${i<2?'qual':''}">
+        ${realStand.length?`<table class="standings"><tbody>${
+          realStand.map((t,i)=>`<tr class="${i<2?'qual':''} ${qStatus[t.c]||''}">
             <td class="s-rank">${i+1}</td>
             <td class="s-flag">${flagImg(t.c,40)}</td>
-            <td class="s-name">${TEAMS[t.c].n}</td>
+            <td class="s-name">${TEAMS[t.c].n}${tagOf(t.c)}</td>
             <td class="s-rec">${t.w}${t.d}${t.l}</td>
             <td class="s-gd">${t.gd>0?'+':''}${t.gd}</td>
             <td class="s-pts">${t.pts}</td>
