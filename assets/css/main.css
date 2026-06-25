@@ -510,6 +510,28 @@ ul{list-style:none}
 .pa-stat{font-family:var(--fm);font-size:19px;font-weight:700;color:var(--gold);flex-shrink:0;line-height:1}
 .pa-stat i{font-size:10px;font-style:normal;color:var(--text-mute);margin-left:2px;font-weight:400}
 @media(max-width:760px){.pa-wrap{grid-template-columns:1fr}}
+.upsets-body{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.up-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:22px 24px}
+.up-card h3{font-family:var(--fd);font-size:15px;margin-bottom:14px}
+.up-card h3 small{font-family:var(--fm);font-size:9.5px;color:var(--text-mute);font-weight:400;margin-left:8px;letter-spacing:1.5px}
+.up-card--wide{grid-column:1/-1}
+.up-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
+.up-row:last-child{border-bottom:0}
+.up-flag{width:26px;height:18px;border-radius:2px;overflow:hidden;flex-shrink:0}
+.up-flag img{width:100%;height:100%;object-fit:cover}
+.up-info{flex:1;min-width:0}
+.up-info b{font-size:13.5px;display:block} .up-info small{font-size:10.5px;color:var(--text-mute)}
+.up-badge{font-family:var(--fm);font-size:15px;font-weight:700;width:28px;text-align:center;flex-shrink:0}
+.up-badge--w{color:var(--win)} .up-badge--l{color:var(--loss)}
+.up-cold{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--line)}
+.up-cold:last-child{border-bottom:0}
+.up-cold__rank{font-family:var(--fd);font-size:18px;font-weight:700;color:var(--text-mute);width:24px;text-align:center;flex-shrink:0}
+.up-cold__main{flex:1;font-size:14px;color:var(--text-dim)}
+.up-cold__main b{color:var(--text)}
+.up-cold__beat{color:var(--accent);font-size:11px;font-family:var(--fm);margin:0 4px}
+.up-cold__diff{font-family:var(--fm);font-size:13px;font-weight:700;color:var(--loss);background:rgba(248,113,113,.12);padding:3px 8px;border-radius:5px;flex-shrink:0}
+.up-empty,.upsets-empty{font-size:13px;color:var(--text-mute);text-align:center;padding:20px}
+@media(max-width:760px){.upsets-body{grid-template-columns:1fr}}
 .tv-stars{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .tv-star{display:flex;align-items:center;gap:10px;padding:9px 11px;background:var(--surface-2);border-radius:8px}
 .tv-star__pos{width:26px;height:26px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:var(--fm);flex-shrink:0}

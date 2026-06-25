@@ -112,6 +112,42 @@
     `;
   }
 
+  /* ============ 爆冷榜（以弱胜强 / 纸老虎） ============ */
+  function calcUpsets(){
+    const upsets=[],winCount={},loseCount={},winDiff={};
+    GROUPS.forEach(m=>{
+      if(m[7]!==1)return;
+      const h=m[3],a=m[4],hs=m[5],as=m[6];
+      let w,l; if(hs>as){w=h;l=a;} else if(as>hs){w=a;l=h;} else return;
+      const diff=TEAMS[l].r-TEAMS[w].r;
+      if(diff>0){ upsets.push({w,l,diff}); winCount[w]=(winCount[w]||0)+1; winDiff[w]=(winDiff[w]||0)+diff; loseCount[l]=(loseCount[l]||0)+1; }
+    });
+    return {upsets,winCount,loseCount,winDiff};
+  }
+  function renderUpsets(){
+    const {upsets,winCount,loseCount,winDiff}=calcUpsets();
+    if(!upsets.length){ $('#upsetsBody').innerHTML='<div class="upsets-empty">暂无爆冷——已赛场次中强队悉数守住阵地。</div>'; return; }
+    const winners=Object.entries(winCount).sort((a,b)=>b[1]-a[1]||(winDiff[b[0]]||0)-(winDiff[a[0]]||0)).slice(0,5);
+    const losers=Object.entries(loseCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    const biggest=upsets.slice().sort((a,b)=>b.diff-a.diff).slice(0,3);
+    const wRow=([c,n])=>`<div class="up-row"><span class="up-flag">${flagImg(c,40,'')}</span><div class="up-info"><b>${TEAMS[c].n}</b><small>以弱胜强 ${n} 次 · 累计翻越 ${(winDiff[c]||0).toFixed(1)} 分</small></div><span class="up-badge up-badge--w">${n}</span></div>`;
+    const lRow=([c,n])=>`<div class="up-row"><span class="up-flag">${flagImg(c,40,'')}</span><div class="up-info"><b>${TEAMS[c].n}</b><small>被爆冷 ${n} 次 · 纸面 ${TEAMS[c].r.toFixed(1)}</small></div><span class="up-badge up-badge--l">${n}</span></div>`;
+    $('#upsetsBody').innerHTML=`
+      <div class="up-card">
+        <h3>🦷 爆冷王 <small>以弱胜强·硬骨头</small></h3>
+        ${winners.map(wRow).join('')||'<div class="up-empty">暂无</div>'}
+      </div>
+      <div class="up-card">
+        <h3>🐯 纸老虎 <small>被爆冷·名不副实</small></h3>
+        ${losers.map(lRow).join('')||'<div class="up-empty">暂无</div>'}
+      </div>
+      <div class="up-card up-card--wide">
+        <h3>💥 本届最大冷门 <small>实力差排行</small></h3>
+        ${biggest.map((u,i)=>`<div class="up-cold"><span class="up-cold__rank">${i+1}</span><span class="up-flag">${flagImg(u.w,48,'')}</span><div class="up-cold__main"><b>${TEAMS[u.w].n}</b> ${TEAMS[u.w].r.toFixed(0)} <span class="up-cold__beat">爆冷击败</span> <b>${TEAMS[u.l].n}</b> ${TEAMS[u.l].r.toFixed(0)}</div><span class="up-cold__diff">差 +${u.diff.toFixed(1)}</span></div>`).join('')}
+      </div>
+    `;
+  }
+
   /* ============ 模型战绩（命中率） ============ */
   function calcAccuracy(){
     let total=0, hit=0, wlTotal=0, wlHit=0; const miss=[];
@@ -844,6 +880,7 @@
     renderHero();
     renderPower();
     renderPlayerAwards();
+    renderUpsets();
     renderGroups();
     renderBracket();
     renderPath();
