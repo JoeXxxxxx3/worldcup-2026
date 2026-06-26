@@ -141,8 +141,8 @@
   function renderUpsets(){
     const {upsets,winCount,loseCount,winMag,weakWin,weakDraw,strongLost,strongDrawn}=calcUpsets();
     if(!upsets.length){ $('#upsetsBody').innerHTML='<div class="upsets-empty">暂无爆冷——已赛场次中强队悉数守住阵地。</div>'; return; }
-    const winners=Object.entries(winCount).sort((a,b)=>b[1]-a[1]||(winMag[b[0]]||0)-(winMag[a[0]]||0)).slice(0,6);
-    const losers=Object.entries(loseCount).sort((a,b)=>b[1]-a[1]||(TEAMS[b[0]].r)-(TEAMS[a[0]].r)).slice(0,6);
+    const winners=Object.entries(winCount).sort((a,b)=>((weakWin[b[0]]||0)-(weakWin[a[0]]||0))||b[1]-a[1]||(winMag[b[0]]||0)-(winMag[a[0]]||0)).slice(0,8);
+    const losers=Object.entries(loseCount).sort((a,b)=>((strongLost[b[0]]||0)-(strongLost[a[0]]||0))||b[1]-a[1]||(TEAMS[b[0]].r)-(TEAMS[a[0]].r)).slice(0,8);
     const biggest=upsets.slice().sort((a,b)=>b.mag-a.mag).slice(0,5);
     const wRow=([c,n])=>`<div class="up-row"><span class="up-flag">${flagImg(c,40,'')}</span><div class="up-info"><b>${TEAMS[c].n}</b><small>拿下 <b class="up-i-win">${weakWin[c]||0}</b> · 逼平 <b class="up-i-draw">${weakDraw[c]||0}</b> · 指数 ${(winMag[c]||0).toFixed(1)}</small></div><span class="up-badge up-badge--w">${n}</span></div>`;
     const lRow=([c,n])=>`<div class="up-row"><span class="up-flag">${flagImg(c,40,'')}</span><div class="up-info"><b>${TEAMS[c].n}</b><small>被拿下 <b class="up-i-win">${strongLost[c]||0}</b> · 被逼平 <b class="up-i-draw">${strongDrawn[c]||0}</b> · 纸面 ${TEAMS[c].r.toFixed(1)}</small></div><span class="up-badge up-badge--l">${n}</span></div>`;
