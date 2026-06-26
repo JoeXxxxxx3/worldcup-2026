@@ -1,0 +1,175 @@
+{
+  "updated": "2026-06-26",
+  "scorers": [
+    {
+      "name": "梅西",
+      "en": "Lionel Messi",
+      "c": "ARG",
+      "t": "Argentina",
+      "g": 5
+    },
+    {
+      "name": "维尼修斯",
+      "en": "Vinícius Júnior",
+      "c": "BRA",
+      "t": "Brazil",
+      "g": 4
+    },
+    {
+      "name": "哈兰德",
+      "en": "Erling Haaland",
+      "c": "NOR",
+      "t": "Norway",
+      "g": 4
+    },
+    {
+      "name": "姆巴佩",
+      "en": "Kylian Mbappé",
+      "c": "FRA",
+      "t": "France",
+      "g": 4
+    },
+    {
+      "name": "赛巴里",
+      "en": "Ismael Saibari",
+      "c": "MAR",
+      "t": "Morocco",
+      "g": 3
+    },
+    {
+      "name": "乔纳森·大卫",
+      "en": "Jonathan David",
+      "c": "CAN",
+      "t": "Canada",
+      "g": 3
+    },
+    {
+      "name": "Matheus Cunha",
+      "en": "Matheus Cunha",
+      "c": "BRA",
+      "t": "Brazil",
+      "g": 3
+    },
+    {
+      "name": "Johan Manzambi",
+      "en": "Johan Manzambi",
+      "c": "SUI",
+      "t": "Switzerland",
+      "g": 3
+    },
+    {
+      "name": "温达夫",
+      "en": "Deniz Undav",
+      "c": "GER",
+      "t": "Germany",
+      "g": 3
+    },
+    {
+      "name": "Julián Quiñones",
+      "en": "Julián Quiñones",
+      "c": "MEX",
+      "t": "Mexico",
+      "g": 2
+    },
+    {
+      "name": "Rubén Vargas",
+      "en": "Rubén Vargas",
+      "c": "SUI",
+      "t": "Switzerland",
+      "g": 2
+    },
+    {
+      "name": "Cyle Larin",
+      "en": "Cyle Larin",
+      "c": "CAN",
+      "t": "Canada",
+      "g": 2
+    }
+  ],
+  "assists": [
+    {
+      "name": "吉马良斯",
+      "en": "Bruno Guimarães",
+      "c": "BRA",
+      "t": "Brazil",
+      "a": 3
+    },
+    {
+      "name": "伊萨克",
+      "en": "Alexander Isak",
+      "c": "SWE",
+      "t": "Sweden",
+      "a": 3
+    },
+    {
+      "name": "奥利塞",
+      "en": "Michael Olise",
+      "c": "FRA",
+      "t": "France",
+      "a": 3
+    },
+    {
+      "name": "Breel Embolo",
+      "en": "Breel Embolo",
+      "c": "SUI",
+      "t": "Switzerland",
+      "a": 2
+    },
+    {
+      "name": "Roberto Alvarado",
+      "en": "Roberto Alvarado",
+      "c": "MEX",
+      "t": "Mexico",
+      "a": 2
+    },
+    {
+      "name": "Brahim Díaz",
+      "en": "Brahim Díaz",
+      "c": "MAR",
+      "t": "Morocco",
+      "a": 2
+    },
+    {
+      "name": "Denzel Dumfries",
+      "en": "Denzel Dumfries",
+      "c": "NED",
+      "t": "Netherlands",
+      "a": 2
+    },
+    {
+      "name": "Chris Wood",
+      "en": "Chris Wood",
+      "c": "NZL",
+      "t": "New Zealand",
+      "a": 2
+    },
+    {
+      "name": "Julio Enciso",
+      "en": "Julio Enciso",
+      "c": "PAR",
+      "t": "Paraguay",
+      "a": 2
+    },
+    {
+      "name": "基米希",
+      "en": "Joshua Kimmich",
+      "c": "GER",
+      "t": "Germany",
+      "a": 2
+    },
+    {
+      "name": "Ryan Gravenberch",
+      "en": "Ryan Gravenberch",
+      "c": "NED",
+      "t": "Netherlands",
+      "a": 2
+    },
+    {
+      "name": "Martin Ødegaard",
+      "en": "Martin Ødegaard",
+      "c": "NOR",
+      "t": "Norway",
+      "a": 2
+    }
+  ]
+}

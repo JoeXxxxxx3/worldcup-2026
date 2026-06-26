@@ -98,7 +98,7 @@
 
   /* ============ 球员榜（金靴 / 助攻） ============ */
   function renderPlayerAwards(){
-    const row = (p,i,unit)=>`<div class="pa-row"><span class="pa-rank">${i+1}</span><span class="pa-flag">${flagImg(p.c,40,'')}</span><div class="pa-info"><b>${p.n}</b><small>${p.t} · ${p.club}</small></div><span class="pa-stat">${unit==='g'?p.g:p.a}<i>${unit==='g'?'球':'助'}</i></span></div>`;
+    const row = (p,i,unit)=>`<div class="pa-row"><span class="pa-rank">${i+1}</span><span class="pa-flag">${flagImg(p.c,40,'')}</span><div class="pa-info"><b>${p.n}</b><small>${p.t}${p.club?' · '+p.club:''}</small></div><span class="pa-stat">${unit==='g'?p.g:p.a}<i>${unit==='g'?'球':'助'}</i></span></div>`;
     $('#paDate').textContent = PLAYER_AWARDS.updated;
     $('#paWrap').innerHTML = `
       <div class="pa-card">
@@ -764,6 +764,20 @@
       if(n) console.log(`✓ 实时赛果已合并 ${n} 场，截至 ${latest || META.updated}`);
     }catch(e){ console.warn('results.json 未加载，使用内置数据'); }
   }
+  /* 加载 ESPN 球员统计（覆盖内置 PLAYER_AWARDS，实现球员榜自动更新） */
+  async function loadPlayerStats(){
+    try{
+      const res = await fetch('assets/data/player-stats.json?t='+Date.now());
+      if(!res.ok) return;
+      const d = await res.json();
+      if(d.scorers && d.scorers.length){
+        PLAYER_AWARDS.scorers = d.scorers.map(p=>({n:p.name,c:p.c,t:TEAMS[p.c]?TEAMS[p.c].n:(p.t||''),g:p.g,club:''}));
+        PLAYER_AWARDS.assists = (d.assists||[]).map(p=>({n:p.name,c:p.c,t:TEAMS[p.c]?TEAMS[p.c].n:(p.t||''),a:p.a,club:''}));
+        PLAYER_AWARDS.updated = d.updated;
+        console.log(`✓ 球员榜已加载 ESPN 实时数据 (截至 ${d.updated})`);
+      }
+    }catch(e){ console.warn('player-stats.json 未加载，使用内置数据'); }
+  }
 
   /* ============ 动态 Elo 实力调整（爆冷自适应） ============
      每场已赛后按"实际 vs 预期"更新两队实力分；爆冷（弱胜强）大幅调整，
@@ -909,6 +923,7 @@
   /* ============ 启动 ============ */
   async function init(){
     await loadResults();
+    await loadPlayerStats();
     applyElo();
     recomputeOdds();
     dynamicKO = buildKnockout();
