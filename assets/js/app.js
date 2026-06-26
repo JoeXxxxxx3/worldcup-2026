@@ -144,21 +144,25 @@
     const {upsets,winCount,loseCount,winMag,strongMag,weakWin,weakDraw,strongLost,strongDrawn}=calcUpsets();
     if(!upsets.length){ $('#upsetsBody').innerHTML='<div class="upsets-empty">暂无爆冷——已赛场次中强队悉数守住阵地。</div>'; return; }
     const byMag=upsetSort==='mag';
-    const winners=Object.entries(winCount).sort((a,b)=>byMag?(winMag[b[0]]||0)-(winMag[a[0]]||0):b[1]-a[1]||(winMag[b[0]]||0)-(winMag[a[0]]||0)).slice(0,8);
-    const losers=Object.entries(loseCount).sort((a,b)=>byMag?(strongMag[b[0]]||0)-(strongMag[a[0]]||0):b[1]-a[1]||(strongMag[b[0]]||0)-(strongMag[a[0]]||0)).slice(0,8);
+    const winSort=(a,b)=>byMag?((winMag[b[0]]||0)-(winMag[a[0]]||0)):((b[1]-a[1])||((winMag[b[0]]||0)-(winMag[a[0]]||0)));
+    const loseSort=(a,b)=>byMag?((strongMag[b[0]]||0)-(strongMag[a[0]]||0)):((b[1]-a[1])||((strongMag[b[0]]||0)-(strongMag[a[0]]||0)));
+    const winners=Object.entries(winCount).sort(winSort).slice(0,8);
+    const losers=Object.entries(loseCount).sort(loseSort).slice(0,8);
     const biggest=upsets.slice().sort((a,b)=>b.mag-a.mag).slice(0,5);
     const sLabel=byMag?'按爆冷指数↓':'按爆冷次数↓';
     const wRow=([c,n])=>{
       const p=[];
       if(weakWin[c])p.push(`拿下 <b class="up-i-win">${weakWin[c]}</b>`);
       if(weakDraw[c])p.push(`逼平 <b class="up-i-draw">${weakDraw[c]}</b>`);
-      return `<div class="up-row"><span class="up-flag">${flagImg(c,40,'')}</span><div class="up-info"><b>${TEAMS[c].n}</b><small>${p.join(' · ')} · 指数 ${(winMag[c]||0).toFixed(1)}</small></div><span class="up-badge up-badge--w">${n}</span></div>`;
+      const badge=byMag?(winMag[c]||0).toFixed(0):n;
+      return `<div class="up-row"><span class="up-flag">${flagImg(c,40,'')}</span><div class="up-info"><b>${TEAMS[c].n}</b><small>${p.join(' · ')} · 指数 ${(winMag[c]||0).toFixed(1)}</small></div><span class="up-badge up-badge--w">${badge}</span></div>`;
     };
     const lRow=([c,n])=>{
       const p=[];
       if(strongLost[c])p.push(`被拿下 <b class="up-i-win">${strongLost[c]}</b>`);
       if(strongDrawn[c])p.push(`被逼平 <b class="up-i-draw">${strongDrawn[c]}</b>`);
-      return `<div class="up-row"><span class="up-flag">${flagImg(c,40,'')}</span><div class="up-info"><b>${TEAMS[c].n}</b><small>${p.join(' · ')} · 纸面 ${TEAMS[c].r.toFixed(1)}</small></div><span class="up-badge up-badge--l">${n}</span></div>`;
+      const badge=byMag?(strongMag[c]||0).toFixed(0):n;
+      return `<div class="up-row"><span class="up-flag">${flagImg(c,40,'')}</span><div class="up-info"><b>${TEAMS[c].n}</b><small>${p.join(' · ')} · 纸面 ${TEAMS[c].r.toFixed(1)}</small></div><span class="up-badge up-badge--l">${badge}</span></div>`;
     };
     $('#upsetsBody').innerHTML=`
       <div class="up-card">
