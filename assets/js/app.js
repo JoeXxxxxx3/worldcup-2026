@@ -114,27 +114,38 @@
 
   /* ============ 爆冷榜（以弱胜强 / 纸老虎） ============ */
   function calcUpsets(){
-    const upsets=[],winCount={},loseCount={},winDiff={};
+    const upsets=[],winCount={},loseCount={},winMag={};
     GROUPS.forEach(m=>{
       if(m[7]!==1)return;
       const h=m[3],a=m[4],hs=m[5],as=m[6];
-      let w,l; if(hs>as){w=h;l=a;} else if(as>hs){w=a;l=h;} else return;
-      const diff=TEAMS[l].r-TEAMS[w].r;
-      if(diff>0){ upsets.push({w,l,diff}); winCount[w]=(winCount[w]||0)+1; winDiff[w]=(winDiff[w]||0)+diff; loseCount[l]=(loseCount[l]||0)+1; }
+      if(!TEAMS[h]||!TEAMS[a])return;
+      const rh=TEAMS[h].r, ra=TEAMS[a].r;
+      const weak=rh<ra?h:a, strong=rh<ra?a:h;
+      const diff=TEAMS[strong].r-TEAMS[weak].r;
+      if(diff<=0.5)return;                       // 实力接近(差≤0.5)不算爆冷
+      const ws=weak===h?hs:as, ss=weak===h?as:hs; // 弱队进球 / 强队进球
+      let mag=0,type='';
+      if(ws>ss){mag=diff;type='胜';}             // 弱胜强：满冷门值
+      else if(ws===ss){mag=diff*0.5;type='平';}  // 弱平强：半冷门值
+      else return;                                // 弱负：正常
+      upsets.push({weak,strong,diff,mag,type});
+      winCount[weak]=(winCount[weak]||0)+1;
+      winMag[weak]=(winMag[weak]||0)+mag;
+      loseCount[strong]=(loseCount[strong]||0)+1;
     });
-    return {upsets,winCount,loseCount,winDiff};
+    return {upsets,winCount,loseCount,winMag};
   }
   function renderUpsets(){
-    const {upsets,winCount,loseCount,winDiff}=calcUpsets();
+    const {upsets,winCount,loseCount,winMag}=calcUpsets();
     if(!upsets.length){ $('#upsetsBody').innerHTML='<div class="upsets-empty">暂无爆冷——已赛场次中强队悉数守住阵地。</div>'; return; }
-    const winners=Object.entries(winCount).sort((a,b)=>b[1]-a[1]||(winDiff[b[0]]||0)-(winDiff[a[0]]||0)).slice(0,5);
-    const losers=Object.entries(loseCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
-    const biggest=upsets.slice().sort((a,b)=>b.diff-a.diff).slice(0,3);
-    const wRow=([c,n])=>`<div class="up-row"><span class="up-flag">${flagImg(c,40,'')}</span><div class="up-info"><b>${TEAMS[c].n}</b><small>以弱胜强 ${n} 次 · 累计翻越 ${(winDiff[c]||0).toFixed(1)} 分</small></div><span class="up-badge up-badge--w">${n}</span></div>`;
+    const winners=Object.entries(winCount).sort((a,b)=>b[1]-a[1]||(winMag[b[0]]||0)-(winMag[a[0]]||0)).slice(0,6);
+    const losers=Object.entries(loseCount).sort((a,b)=>b[1]-a[1]||(TEAMS[b[0]].r)-(TEAMS[a[0]].r)).slice(0,6);
+    const biggest=upsets.slice().sort((a,b)=>b.mag-a.mag).slice(0,5);
+    const wRow=([c,n])=>`<div class="up-row"><span class="up-flag">${flagImg(c,40,'')}</span><div class="up-info"><b>${TEAMS[c].n}</b><small>以弱抗强 ${n} 次 · 爆冷指数 ${(winMag[c]||0).toFixed(1)}</small></div><span class="up-badge up-badge--w">${n}</span></div>`;
     const lRow=([c,n])=>`<div class="up-row"><span class="up-flag">${flagImg(c,40,'')}</span><div class="up-info"><b>${TEAMS[c].n}</b><small>被爆冷 ${n} 次 · 纸面 ${TEAMS[c].r.toFixed(1)}</small></div><span class="up-badge up-badge--l">${n}</span></div>`;
     $('#upsetsBody').innerHTML=`
       <div class="up-card">
-        <h3>🦷 爆冷王 <small>以弱胜强·硬骨头</small></h3>
+        <h3>🦷 爆冷王 <small>以弱抗强·硬骨头</small></h3>
         ${winners.map(wRow).join('')||'<div class="up-empty">暂无</div>'}
       </div>
       <div class="up-card">
@@ -142,8 +153,8 @@
         ${losers.map(lRow).join('')||'<div class="up-empty">暂无</div>'}
       </div>
       <div class="up-card up-card--wide">
-        <h3>💥 本届最大冷门 <small>实力差排行</small></h3>
-        ${biggest.map((u,i)=>`<div class="up-cold"><span class="up-cold__rank">${i+1}</span><span class="up-flag">${flagImg(u.w,48,'')}</span><div class="up-cold__main"><b>${TEAMS[u.w].n}</b> ${TEAMS[u.w].r.toFixed(0)} <span class="up-cold__beat">爆冷击败</span> <b>${TEAMS[u.l].n}</b> ${TEAMS[u.l].r.toFixed(0)}</div><span class="up-cold__diff">差 +${u.diff.toFixed(1)}</span></div>`).join('')}
+        <h3>💥 本届最大冷门 <small>弱队爆冷胜/平 排行</small></h3>
+        ${biggest.map((u,i)=>`<div class="up-cold"><span class="up-cold__rank">${i+1}</span><span class="up-flag">${flagImg(u.weak,48,'')}</span><div class="up-cold__main"><b>${TEAMS[u.weak].n}</b> ${TEAMS[u.weak].r.toFixed(0)} <span class="up-cold__beat">爆冷${u.type}</span> <b>${TEAMS[u.strong].n}</b> ${TEAMS[u.strong].r.toFixed(0)}</div><span class="up-cold__diff ${u.type==='平'?'is-draw':''}">差 +${u.diff.toFixed(1)}${u.type==='平'?'·平':''}</span></div>`).join('')}
       </div>
     `;
   }
@@ -452,13 +463,16 @@
     const pw=Math.round(1/(1+Math.pow(10,(ta.r-th.r)/30))*100);
     const pl=Math.round(1/(1+Math.pow(10,(th.r-ta.r)/30))*100);
     const pd=Math.max(8,100-pw-pl);
+    const weakK=th.r<ta.r?h:a;
+    const upsetRisk=Math.min((weakK===h?pw:pl)+pd,99);
+    const upsetTag=upsetRisk>=40?`<span class="ko-upset ko-upset--hi">🔥 高爆冷风险 ${upsetRisk}%</span>`:upsetRisk>=25?`<span class="ko-upset ko-upset--mid">⚠️ 冷门可能 ${upsetRisk}%</span>`:`<span class="ko-upset ko-upset--lo">✓ 预测无爆冷 (${upsetRisk}%)</span>`;
     const N=6,mat=[];
     for(let i=0;i<N;i++){mat[i]=[];for(let j=0;j<N;j++)mat[i][j]=poissonPmf(i,lh)*poissonPmf(j,la)*100;}
     const flat=[];for(let i=0;i<N;i++)for(let j=0;j<N;j++)flat.push({s:i+'-'+j,p:mat[i][j]});
     flat.sort((x,y)=>y.p-x.p);const top5=flat.slice(0,5);
     return `
       <div class="mv-head">
-        <div class="mv-meta">${label||'淘汰赛'}${match?` · ${match.d||''}${match.v?' · '+match.v:''}`:''} · 模型推演</div>
+        <div class="mv-meta">${label||'淘汰赛'}${match?` · ${match.d||''}${match.v?' · '+match.v:''}`:''} · 模型推演 ${upsetTag}</div>
         <div class="mv-scoreboard">
           <div class="mv-team"><div class="mv-flag">${flagImg(h,160)}</div><div class="mv-name">${th.n}</div><div class="mv-elo">Elo ${eh} · 实力 ${th.r.toFixed(1)}</div></div>
           <div class="mv-score pred">${match?`${match.hs}<span>:</span>${match.as}`:'<small>待定</small>'}</div>
