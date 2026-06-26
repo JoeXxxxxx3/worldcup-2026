@@ -113,6 +113,7 @@
   }
 
   /* ============ 爆冷榜（以弱胜强 / 软柿子） ============ */
+  let upsetSort='mag';   // 'mag' 按爆冷指数 | 'count' 按爆冷次数（用户可切换）
   function calcUpsets(){
     const upsets=[],winCount={},loseCount={},winMag={},strongMag={};
     const weakWin={},weakDraw={},strongLost={},strongDrawn={};
@@ -142,9 +143,11 @@
   function renderUpsets(){
     const {upsets,winCount,loseCount,winMag,strongMag,weakWin,weakDraw,strongLost,strongDrawn}=calcUpsets();
     if(!upsets.length){ $('#upsetsBody').innerHTML='<div class="upsets-empty">暂无爆冷——已赛场次中强队悉数守住阵地。</div>'; return; }
-    const winners=Object.entries(winCount).sort((a,b)=>(winMag[b[0]]||0)-(winMag[a[0]]||0)).slice(0,8);
-    const losers=Object.entries(loseCount).sort((a,b)=>(strongMag[b[0]]||0)-(strongMag[a[0]]||0)).slice(0,8);
+    const byMag=upsetSort==='mag';
+    const winners=Object.entries(winCount).sort((a,b)=>byMag?(winMag[b[0]]||0)-(winMag[a[0]]||0):b[1]-a[1]||(winMag[b[0]]||0)-(winMag[a[0]]||0)).slice(0,8);
+    const losers=Object.entries(loseCount).sort((a,b)=>byMag?(strongMag[b[0]]||0)-(strongMag[a[0]]||0):b[1]-a[1]||(strongMag[b[0]]||0)-(strongMag[a[0]]||0)).slice(0,8);
     const biggest=upsets.slice().sort((a,b)=>b.mag-a.mag).slice(0,5);
+    const sLabel=byMag?'按爆冷指数↓':'按爆冷次数↓';
     const wRow=([c,n])=>{
       const p=[];
       if(weakWin[c])p.push(`拿下 <b class="up-i-win">${weakWin[c]}</b>`);
@@ -159,11 +162,11 @@
     };
     $('#upsetsBody').innerHTML=`
       <div class="up-card">
-        <h3>🦷 爆冷王 <small>弱队 · 按爆冷指数↓</small></h3>
+        <h3>🦷 爆冷王 <small>弱队 · ${sLabel}</small></h3>
         ${winners.map(wRow).join('')||'<div class="up-empty">暂无</div>'}
       </div>
       <div class="up-card">
-        <h3>🐯 软柿子 <small>强队 · 按被爆冷指数↓</small></h3>
+        <h3>🐯 软柿子 <small>强队 · ${sLabel}</small></h3>
         ${losers.map(lRow).join('')||'<div class="up-empty">暂无</div>'}
       </div>
       <div class="up-card up-card--wide">
@@ -909,6 +912,11 @@
     renderPower();
     renderPlayerAwards();
     renderUpsets();
+    $$('.up-sort__btn').forEach(btn=>btn.addEventListener('click',()=>{
+      upsetSort=btn.dataset.sort;
+      $$('.up-sort__btn').forEach(b=>b.classList.toggle('active',b.dataset.sort===upsetSort));
+      renderUpsets();
+    }));
     renderGroups();
     renderBracket();
     renderPath();
