@@ -114,7 +114,7 @@
 
   /* ============ 爆冷榜（以弱胜强 / 软柿子） ============ */
   function calcUpsets(){
-    const upsets=[],winCount={},loseCount={},winMag={};
+    const upsets=[],winCount={},loseCount={},winMag={},strongMag={};
     const weakWin={},weakDraw={},strongLost={},strongDrawn={};
     GROUPS.forEach(m=>{
       if(m[7]!==1)return;
@@ -131,18 +131,19 @@
       else return;                                // 弱负：正常
       upsets.push({weak,strong,diff,mag,type});
       winCount[weak]=(winCount[weak]||0)+1;
-      winMag[weak]=(winMag[weak]||0)+mag;
+      winMag[weak]=(winMag[weak]||0)+mag;          // 弱队爆冷指数
+      strongMag[strong]=(strongMag[strong]||0)+mag; // 强队被爆冷指数
       loseCount[strong]=(loseCount[strong]||0)+1;
       if(type==='胜'){weakWin[weak]=(weakWin[weak]||0)+1;strongLost[strong]=(strongLost[strong]||0)+1;}
       else{weakDraw[weak]=(weakDraw[weak]||0)+1;strongDrawn[strong]=(strongDrawn[strong]||0)+1;}
     });
-    return {upsets,winCount,loseCount,winMag,weakWin,weakDraw,strongLost,strongDrawn};
+    return {upsets,winCount,loseCount,winMag,strongMag,weakWin,weakDraw,strongLost,strongDrawn};
   }
   function renderUpsets(){
-    const {upsets,winCount,loseCount,winMag,weakWin,weakDraw,strongLost,strongDrawn}=calcUpsets();
+    const {upsets,winCount,loseCount,winMag,strongMag,weakWin,weakDraw,strongLost,strongDrawn}=calcUpsets();
     if(!upsets.length){ $('#upsetsBody').innerHTML='<div class="upsets-empty">暂无爆冷——已赛场次中强队悉数守住阵地。</div>'; return; }
-    const winners=Object.entries(winCount).sort((a,b)=>((weakWin[b[0]]||0)-(weakWin[a[0]]||0))||b[1]-a[1]||(winMag[b[0]]||0)-(winMag[a[0]]||0)).slice(0,8);
-    const losers=Object.entries(loseCount).sort((a,b)=>((strongLost[b[0]]||0)-(strongLost[a[0]]||0))||b[1]-a[1]||(TEAMS[b[0]].r)-(TEAMS[a[0]].r)).slice(0,8);
+    const winners=Object.entries(winCount).sort((a,b)=>(winMag[b[0]]||0)-(winMag[a[0]]||0)).slice(0,8);
+    const losers=Object.entries(loseCount).sort((a,b)=>(strongMag[b[0]]||0)-(strongMag[a[0]]||0)).slice(0,8);
     const biggest=upsets.slice().sort((a,b)=>b.mag-a.mag).slice(0,5);
     const wRow=([c,n])=>{
       const p=[];
@@ -158,11 +159,11 @@
     };
     $('#upsetsBody').innerHTML=`
       <div class="up-card">
-        <h3>🦷 爆冷王 <small>弱队·以弱抗强</small></h3>
+        <h3>🦷 爆冷王 <small>弱队 · 按爆冷指数↓</small></h3>
         ${winners.map(wRow).join('')||'<div class="up-empty">暂无</div>'}
       </div>
       <div class="up-card">
-        <h3>🐯 软柿子 <small>强队·名不副实</small></h3>
+        <h3>🐯 软柿子 <small>强队 · 按被爆冷指数↓</small></h3>
         ${losers.map(lRow).join('')||'<div class="up-empty">暂无</div>'}
       </div>
       <div class="up-card up-card--wide">
