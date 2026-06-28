@@ -361,21 +361,25 @@
   /* 淘汰赛单场预测：实时 Elo 决定胜者，泊松模型生成比分 */
   function predictKO(h,a){
     if(!h||!a||!TEAMS[h]||!TEAMS[a]) return null;
-    const [lh,la]=lambdas(TEAMS[h].r,TEAMS[a].r,false);
-    const N=6; const mat=[];
-    for(let i=0;i<N;i++){mat[i]=[];for(let j=0;j<N;j++)mat[i][j]=poissonPmf(i,lh)*poissonPmf(j,la);}
-    const winner = TEAMS[h].r>=TEAMS[a].r ? h : a;
-    let best={p:-1,i:1,j:0};
-    for(let i=0;i<N;i++)for(let j=0;j<N;j++){
-      if((winner===h&&i>j)||(winner===a&&j>i)){
-        if(mat[i][j]>best.p) best={p:mat[i][j],i,j};
-      }
-    }
-    const loser = winner===h ? a : h;
-    const dElo = Math.round(ELO(TEAMS[winner].r)-ELO(TEAMS[loser].r));
-    const close = Math.abs(TEAMS[h].r-TEAMS[a].r)<3;
-    return {h,a,hs:best.i,as:best.j,w:winner,et:close?1:0,
-      note:`${TEAMS[winner].n}晋级 · Elo +${dElo}${close?'（势均力敌，或经加时）':''}`};
+    const th=TEAMS[h], ta=TEAMS[a];
+    const strongIsH = th.r>=ta.r;
+    const [lh,la]=lambdas(th.r,ta.r,false);
+    // 确定性种子（两队代码）→ 同输入同输出，不同对决比分多样（不再全 1-0）
+    let seed=0; for(const c of (h+a)) seed=(seed*31+c.charCodeAt(0))>>>0;
+    const rng=()=>{seed=(seed*1103515245+12345)>>>0;return (seed>>>8)/16777215;};
+    const poissonSample=lambda=>{const L=Math.exp(-lambda);let k=0,p=1;do{k++;p*=rng();}while(p>L);return k-1;};
+    // 弱队进球按泊松采样；强队净胜 1~3 球（种子决定，比分自然多样）
+    const weakG = Math.min(poissonSample(strongIsH?la:lh),3);
+    const margin = 1 + (rng()<0.45?1:0) + (rng()<0.12?1:0);
+    const strongG = weakG + margin;
+    const hs = strongIsH?strongG:weakG;
+    const as = strongIsH?weakG:strongG;
+    const w = strongIsH?h:a;
+    const loser = strongIsH?a:h;
+    const dElo = Math.abs(Math.round(ELO(th.r)-ELO(ta.r)));
+    const close = Math.abs(th.r-ta.r)<3;
+    return {h,a,hs,as,w,et:(close&&margin===1)?1:0,
+      note:`${TEAMS[w].n}晋级 · Elo +${dElo}${close&&margin===1?'（势均力敌，加时险胜）':''}`};
   }
   /* 完整动态重推演：出线 → 第三名分配 → 32强对阵 → 逐轮胜者 */
   function buildKnockout(){
