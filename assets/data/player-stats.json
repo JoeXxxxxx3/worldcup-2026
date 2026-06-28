@@ -1,18 +1,32 @@
 {
-  "updated": "2026-06-26",
+  "updated": "2026-06-28",
   "scorers": [
     {
       "name": "梅西",
       "en": "Lionel Messi",
       "c": "ARG",
       "t": "Argentina",
-      "g": 5
+      "g": 6
+    },
+    {
+      "name": "姆巴佩",
+      "en": "Kylian Mbappé",
+      "c": "FRA",
+      "t": "France",
+      "g": 4
     },
     {
       "name": "维尼修斯",
       "en": "Vinícius Júnior",
       "c": "BRA",
       "t": "Brazil",
+      "g": 4
+    },
+    {
+      "name": "登贝莱",
+      "en": "Ousmane Dembélé",
+      "c": "FRA",
+      "t": "France",
       "g": 4
     },
     {
@@ -23,11 +37,32 @@
       "g": 4
     },
     {
-      "name": "姆巴佩",
-      "en": "Kylian Mbappé",
-      "c": "FRA",
-      "t": "France",
-      "g": 4
+      "name": "Yoane Wissa",
+      "en": "Yoane Wissa",
+      "c": "COD",
+      "t": "Congo DR",
+      "g": 3
+    },
+    {
+      "name": "Elijah Just",
+      "en": "Elijah Just",
+      "c": "NZL",
+      "t": "New Zealand",
+      "g": 3
+    },
+    {
+      "name": "凯恩",
+      "en": "Harry Kane",
+      "c": "ENG",
+      "t": "England",
+      "g": 3
+    },
+    {
+      "name": "Ismaïla Sarr",
+      "en": "Ismaïla Sarr",
+      "c": "SEN",
+      "t": "Senegal",
+      "g": 3
     },
     {
       "name": "赛巴里",
@@ -49,56 +84,21 @@
       "c": "BRA",
       "t": "Brazil",
       "g": 3
-    },
-    {
-      "name": "Johan Manzambi",
-      "en": "Johan Manzambi",
-      "c": "SUI",
-      "t": "Switzerland",
-      "g": 3
-    },
-    {
-      "name": "温达夫",
-      "en": "Deniz Undav",
-      "c": "GER",
-      "t": "Germany",
-      "g": 3
-    },
-    {
-      "name": "Julián Quiñones",
-      "en": "Julián Quiñones",
-      "c": "MEX",
-      "t": "Mexico",
-      "g": 2
-    },
-    {
-      "name": "Rubén Vargas",
-      "en": "Rubén Vargas",
-      "c": "SUI",
-      "t": "Switzerland",
-      "g": 2
-    },
-    {
-      "name": "Cyle Larin",
-      "en": "Cyle Larin",
-      "c": "CAN",
-      "t": "Canada",
-      "g": 2
     }
   ],
   "assists": [
-    {
-      "name": "吉马良斯",
-      "en": "Bruno Guimarães",
-      "c": "BRA",
-      "t": "Brazil",
-      "a": 3
-    },
     {
       "name": "伊萨克",
       "en": "Alexander Isak",
       "c": "SWE",
       "t": "Sweden",
+      "a": 3
+    },
+    {
+      "name": "吉马良斯",
+      "en": "Bruno Guimarães",
+      "c": "BRA",
+      "t": "Brazil",
       "a": 3
     },
     {
@@ -109,24 +109,17 @@
       "a": 3
     },
     {
-      "name": "Breel Embolo",
-      "en": "Breel Embolo",
-      "c": "SUI",
-      "t": "Switzerland",
+      "name": "Hannibal Mejbri",
+      "en": "Hannibal Mejbri",
+      "c": "TUN",
+      "t": "Tunisia",
       "a": 2
     },
     {
-      "name": "Roberto Alvarado",
-      "en": "Roberto Alvarado",
-      "c": "MEX",
-      "t": "Mexico",
-      "a": 2
-    },
-    {
-      "name": "Brahim Díaz",
-      "en": "Brahim Díaz",
-      "c": "MAR",
-      "t": "Morocco",
+      "name": "Viktor Gyökeres",
+      "en": "Viktor Gyökeres",
+      "c": "SWE",
+      "t": "Sweden",
       "a": 2
     },
     {
@@ -151,10 +144,17 @@
       "a": 2
     },
     {
-      "name": "基米希",
-      "en": "Joshua Kimmich",
-      "c": "GER",
-      "t": "Germany",
+      "name": "姆巴佩",
+      "en": "Kylian Mbappé",
+      "c": "FRA",
+      "t": "France",
+      "a": 2
+    },
+    {
+      "name": "Breel Embolo",
+      "en": "Breel Embolo",
+      "c": "SUI",
+      "t": "Switzerland",
       "a": 2
     },
     {
@@ -165,10 +165,10 @@
       "a": 2
     },
     {
-      "name": "Martin Ødegaard",
-      "en": "Martin Ødegaard",
-      "c": "NOR",
-      "t": "Norway",
+      "name": "Roberto Alvarado",
+      "en": "Roberto Alvarado",
+      "c": "MEX",
+      "t": "Mexico",
       "a": 2
     }
   ]
