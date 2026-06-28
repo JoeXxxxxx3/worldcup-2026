@@ -244,11 +244,37 @@
   }
   /* 基于「已赛」判断每队是否已锁定出线/出局：枚举未赛所有胜负平组合，
      若该队所有组合都前2 → in(锁定出线)；都进不了前2 → out(锁定出局)；否则 maybe */
+  /* 12 组第 3 名按积分/净胜球/进球排序，前 8 出线（48 队赛制：前2 + 8 最佳第三） */
+  function calcBestThirds(){
+    const thirds=[];
+    'ABCDEFGHIJKL'.split('').forEach(g=>{
+      const ms=GROUPS.filter(m=>m[0]===g);
+      const played=ms.filter(m=>m[7]===1);
+      if(played.length < ms.length) return;   // 该组未全完赛则跳过
+      const st=calcStandings(played);
+      if(st[2]) thirds.push(st[2]);
+    });
+    thirds.sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf);
+    return new Set(thirds.slice(0,8).map(t=>t.c));
+  }
   function qualifyStatus(g){
     const ms = GROUPS.filter(m=>m[0]===g);
     const teams = [...new Set(ms.flatMap(m=>[m[3],m[4]]))];
     const played = ms.filter(m=>m[7]===1);
     if(!played.length) return {};
+    // 该组已全完赛 → 实际排名 + 最佳第三判断
+    if(played.length >= ms.length){
+      const st = calcStandings(played);
+      const bestThirds = calcBestThirds();
+      const out = {};
+      st.forEach((t,i)=>{
+        if(i<2) out[t.c]='in';
+        else if(i===2) out[t.c] = bestThirds.has(t.c) ? 'in' : 'out';
+        else out[t.c]='out';
+      });
+      return out;
+    }
+    // 未全完赛 → 枚举未赛判断前2
     const unplayed = ms.filter(m=>m[7]!==1);
     const base = {}; teams.forEach(c=>base[c]=0);
     played.forEach(m=>{ const hs=m[5],as=m[6]; if(hs>as)base[m[3]]+=3; else if(hs<as)base[m[4]]+=3; else{base[m[3]]++;base[m[4]]++;} });
