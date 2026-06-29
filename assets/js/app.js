@@ -444,7 +444,8 @@
     return {h,a,hs,as,w,et:(close&&margin===1)?1:0,
       note:`${TEAMS[w].n}晋级 · Elo +${dElo}${close&&margin===1?'（势均力敌，加时险胜）':''}`};
   }
-  /* 完整动态重推演：出线 → 第三名分配 → 32强对阵 → 逐轮胜者 */
+  let knockoutReal=[];   // 淘汰赛真实赛果（已踢场次覆盖推演）
+  /* 完整动态重推演：出线 → 第三名分配 → 32强对阵 → 逐轮胜者（已踢用真实） */
   function buildKnockout(){
     const codes='ABCDEFGHIJKL'.split('');
     const W={}; const thirds=[];
@@ -466,15 +467,22 @@
       [W.D[0],pick(9)],[W.G[0],pick(10)],[W.H[0],W.J[1]],[W.K[1],W.L[1]],
       [W.B[0],pick(13)],[W.D[1],W.G[1]],[W.J[0],W.H[1]],[W.K[0],pick(16)]
     ];
-    const r32=r32def.map(([h,a])=>predictKO(h,a)).filter(Boolean);
+    const realMatch=(h,a)=>{
+      const r=(knockoutReal||[]).find(x=>(x.h===h&&x.a===a)||(x.h===a&&x.a===h));
+      if(!r) return null;
+      const w=r.hs>r.as?h:(r.as>r.hs?a:null);
+      return w?{h,a,hs:r.hs,as:r.as,w,et:0,note:`真实赛果 · ${TEAMS[w].n}晋级`,real:true}:null;
+    };
+    const koPick=(h,a)=>realMatch(h,a)||predictKO(h,a);
+    const r32=r32def.map(([h,a])=>koPick(h,a)).filter(Boolean);
     if(r32.length<16) return null;
-    const mk=arr=>{const r=[];for(let i=0;i<arr.length;i+=2){if(arr[i]&&arr[i+1])r.push(predictKO(arr[i].w,arr[i+1].w));}return r;};
+    const mk=arr=>{const r=[];for(let i=0;i<arr.length;i+=2){if(arr[i]&&arr[i+1])r.push(koPick(arr[i].w,arr[i+1].w));}return r;};
     const r16=mk(r32), qf=mk(r16), sf=mk(qf);
     if(sf.length<2) return null;
-    const final=predictKO(sf[0].w,sf[1].w);
+    const final=koPick(sf[0].w,sf[1].w);
     const l0=sf[0].h===sf[0].w?sf[0].a:sf[0].h;
     const l1=sf[1].h===sf[1].w?sf[1].a:sf[1].h;
-    const third=predictKO(l0,l1);
+    const third=koPick(l0,l1);
     return {r32,r16,qf,sf,final:[final],third:[third]};
   }
   function koCard(m, roundLabel, isFinal=false){
@@ -845,6 +853,14 @@
       }
     }catch(e){ console.warn('player-stats.json 未加载，使用内置数据'); }
   }
+  async function loadKnockoutReal(){
+    try{
+      const res=await fetch('assets/data/knockout-real.json?t='+Date.now());
+      if(!res.ok) return;
+      knockoutReal=await res.json();
+      console.log(`✓ 淘汰赛真实赛果 ${knockoutReal.length} 场已加载`);
+    }catch(e){ console.warn('knockout-real.json 未加载，使用纯推演'); }
+  }
 
   /* ============ 动态 Elo 实力调整（爆冷自适应） ============
      每场已赛后按"实际 vs 预期"更新两队实力分；爆冷（弱胜强）大幅调整，
@@ -991,6 +1007,7 @@
   async function init(){
     await loadResults();
     await loadPlayerStats();
+    await loadKnockoutReal();
     applyElo();
     recomputeOdds();
     dynamicKO = buildKnockout();

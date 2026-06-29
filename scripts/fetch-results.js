@@ -47,6 +47,33 @@ async function main() {
   fs.writeFileSync(OUT, JSON.stringify(results, null, 2) + '\n');
   console.log(`✓ 已更新 ${results.length} 场完赛赛果 → ${path.relative(process.cwd(), OUT)}`);
   await fetchPlayerStats();
+  await fetchKnockoutReal();
+}
+
+/* 抓淘汰赛真实赛果（32强~决赛，6-28~7-19）→ knockout-real.json */
+async function fetchKnockoutReal(){
+  const KOUT = path.join(__dirname, '..', 'assets', 'data', 'knockout-real.json');
+  const KO_DAYS = [];
+  for(let d=28;d<=30;d++) KO_DAYS.push('202606'+String(d).padStart(2,'0'));
+  for(let d=1;d<=19;d++) KO_DAYS.push('202607'+String(d).padStart(2,'0'));
+  const res=[]; const seen=new Set();
+  for(const d of KO_DAYS){
+    let data;
+    try{ const r=await fetch(URL(d)); data=await r.json(); }catch(e){ continue; }
+    for(const ev of data.events||[]){
+      const c=ev.competitions&&ev.competitions[0]; if(!c) continue;
+      const comps=c.competitors||[];
+      const home=comps.find(x=>x.homeAway==='home'), away=comps.find(x=>x.homeAway==='away');
+      if(!home||!away) continue;
+      if(ev.status&&ev.status.type&&ev.status.type.state!=='post') continue;
+      const h=code(home.team.abbreviation), a=code(away.team.abbreviation);
+      const key=[h,a].sort().join('_');
+      if(seen.has(key)) continue; seen.add(key);
+      res.push({h,a,hs:+home.score,as:+away.score,d:d.slice(0,4)+'-'+d.slice(4,6)+'-'+d.slice(6,8)});
+    }
+  }
+  fs.writeFileSync(KOUT, JSON.stringify(res,null,2)+'\n');
+  console.log(`✓ 淘汰赛真实赛果 ${res.length} 场 → ${path.relative(process.cwd(), KOUT)}`);
 }
 
 /* 抓 ESPN 球员统计（射手榜 / 助攻榜）→ player-stats.json */
