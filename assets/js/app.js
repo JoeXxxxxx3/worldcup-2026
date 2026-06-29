@@ -198,23 +198,39 @@
     return {total, hit, miss, t, wlTotal, wlHit};
   }
 
-  let focusIdx=-1;
+  /* 焦点以「相对最新完赛的偏移」定位：0=最新赛果复盘，+1=下一场预告，-1/-2…=历史。
+     赛程推进（新赛果合并）时 base 前移，焦点自动跟随 → 真正随赛程同步最新赛果。 */
+  let focusOffset = 0;
+  function focusBaseIdx(){
+    let last=-1; GROUPS.forEach((m,i)=>{ if(m[7]===1) last=i; });
+    return last>=0 ? last : 0;
+  }
+  function focusIdxNow(){ return Math.max(0, Math.min(GROUPS.length-1, focusBaseIdx()+focusOffset)); }
+  function focusStep(dir){
+    const base=focusBaseIdx();
+    focusOffset = Math.max(-base, Math.min(GROUPS.length-1-base, focusOffset+dir));
+    renderAccuracy();
+  }
   function renderAccuracy(){
     const acc = calcAccuracy();
     const rate = acc.total ? (acc.hit/acc.total*100).toFixed(1) : '0.0';
-    if(focusIdx<0){ let last=-1; GROUPS.forEach((m,i)=>{ if(m[7]===1) last=i; }); focusIdx = last>=0 ? last : 0; }
-    const m = GROUPS[focusIdx] || GROUPS[0];
+    const fi = focusIdxNow();
+    const m = GROUPS[fi] || GROUPS[0];
+    const atLatest = focusOffset===0;
     $('#accuracyBody').innerHTML = `
       <div class="acc-rate-bar reveal">
         <div class="acc-rate"><b>${rate}<i>%</i></b></div>
         <div class="acc-rate-sub">模型命中率 · <b>${acc.hit}</b>/${acc.total} 场命中 · 胜负识别 ${acc.wlHit}/${acc.wlTotal} · 平局 ${acc.t.draw.h}/${acc.t.draw.t}</div>
       </div>
       <div class="focus-stage">
-        <button class="focus-nav" data-dir="-1" ${focusIdx<=0?'disabled':''} aria-label="上一场">‹</button>
-        <div class="focus-main reveal">${focusCard(m)}</div>
-        <button class="focus-nav" data-dir="1" ${focusIdx>=GROUPS.length-1?'disabled':''} aria-label="下一场">›</button>
+        <button class="focus-nav" data-dir="-1" ${fi<=0?'disabled':''} aria-label="上一场">‹</button>
+        <div class="focus-main">${focusCard(m)}</div>
+        <button class="focus-nav" data-dir="1" ${fi>=GROUPS.length-1?'disabled':''} aria-label="下一场">›</button>
       </div>
-      <div class="focus-pos">第 ${focusIdx+1} / ${GROUPS.length} 场 · ${m[7]===1?'已完赛':'未赛预告'} · 点左右箭头切换</div>`;
+      <div class="focus-pos">${atLatest?'<b class="fp-live">● 最新赛果</b> · ':'近期 · '}第 ${fi+1} / ${GROUPS.length} 场 · ${m[7]===1?'已完赛复盘':'未赛预告'} · 点箭头 / 手机左右滑动切换</div>`;
+    // 动态重渲染产生的 .reveal 是全新节点，IntersectionObserver 只 observe 一次，
+    // 翻页后不会再次触发 → 必须手动补 .in，否则停在 opacity:0 表现为中间空白。
+    $$('#accuracyBody .reveal').forEach(el=>el.classList.add('in'));
   }
   function focusCard(m){
     const [g,v,host,h,a,hs,as,played,pw,pd,pl,ts]=m;
@@ -820,6 +836,37 @@
       if(n) console.log(`✓ 实时赛果已合并 ${n} 场，截至 ${latest || META.updated}`);
     }catch(e){ console.warn('results.json 未加载，使用内置数据'); }
   }
+  /* 每 5 分钟重新拉取赛果合并，重算实力与概率榜；焦点因「相对最新完赛」的偏移定位，
+     会随新赛果自然前移 —— 实现"随赛程同步当前最新赛果"。用户手动翻页后偏移固定，
+     不强拉回，保持浏览位置。 */
+  async function syncLatestFocus(){
+    await loadResults();
+    applyElo(); recomputeOdds();
+    renderPower();
+    renderAccuracy();
+    console.log('✓ 赛果焦点已同步最新赛程');
+  }
+  /* 移动端：在赛果焦点区域左右滑动切换场次。仅水平滑动（位移 > 垂直）才接管，
+     垂直滑动交给页面正常滚动；滑动进行中淡出左右按钮，停止后恢复显示。 */
+  function setupFocusSwipe(){
+    const box=$('#accuracyBody'); if(!box) return;
+    let sx=0, sy=0, swiping=false, moved=0;
+    box.addEventListener('touchstart', e=>{ sx=e.touches[0].clientX; sy=e.touches[0].clientY; swiping=false; moved=0; }, {passive:true});
+    box.addEventListener('touchmove', e=>{
+      const dx=e.touches[0].clientX-sx, dy=e.touches[0].clientY-sy;
+      if(Math.abs(dx)>12 && Math.abs(dx)>Math.abs(dy)){
+        swiping=true; moved=dx;
+        const st=box.querySelector('.focus-stage'); if(st) st.classList.add('sliding');
+      }
+    }, {passive:true});
+    box.addEventListener('touchend', ()=>{
+      if(!swiping) return;
+      if(moved<-50) focusStep(1);        // 左滑 → 下一场
+      else if(moved>50) focusStep(-1);   // 右滑 → 上一场
+      const st=box.querySelector('.focus-stage');
+      if(st) setTimeout(()=>st.classList.remove('sliding'), 280);
+    });
+  }
   /* 加载 ESPN 球员统计（覆盖内置 PLAYER_AWARDS，实现球员榜自动更新） */
   async function loadPlayerStats(){
     try{
@@ -1009,8 +1056,10 @@
     renderAccuracy();
     $('#accuracyBody').addEventListener('click',e=>{
       const b=e.target.closest('.focus-nav');
-      if(b&&b.dataset.dir&&!b.disabled){ focusIdx=Math.max(0,Math.min(GROUPS.length-1,focusIdx+(+b.dataset.dir))); renderAccuracy(); }
+      if(b&&b.dataset.dir&&!b.disabled) focusStep(+b.dataset.dir);
     });
+    setupFocusSwipe();                       // 移动端：左右滑动切换赛果焦点
+    setInterval(syncLatestFocus, 5*60*1000); // 每 5 分钟同步最新赛果，焦点随赛程自动前进
     observeReveal();
     setupTheme();
     window.addEventListener('hashchange', router);
