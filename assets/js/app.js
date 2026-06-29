@@ -255,9 +255,11 @@
       </div>`;
     $('#accuracyBody').innerHTML = `
       ${tabHTML}
-      <div class="acc-rate-bar reveal">
-        <div class="acc-rate"><b>${rate}<i>%</i></b></div>
-        <div class="acc-rate-sub">模型命中率 · <b>${acc.hit}</b>/${acc.total} 场命中 · 胜负识别 ${acc.wlHit}/${acc.wlTotal} · 平局 ${acc.t.draw.h}/${acc.t.draw.t}</div>
+      <div class="acc-stats reveal">
+        <div class="acc-stat is-main"><b>${rate}<i>%</i></b><small>模型命中率</small></div>
+        <div class="acc-stat"><b>${acc.hit}<i>/</i>${acc.total}</b><small>命中场次</small></div>
+        <div class="acc-stat"><b>${acc.wlHit}<i>/</i>${acc.wlTotal}</b><small>胜负识别</small></div>
+        <div class="acc-stat"><b>${acc.t.draw.h}<i>/</i>${acc.t.draw.t}</b><small>平局命中</small></div>
       </div>
       <div class="focus-stage">
         <button class="focus-nav" data-dir="-1" aria-label="上一场">‹</button>
