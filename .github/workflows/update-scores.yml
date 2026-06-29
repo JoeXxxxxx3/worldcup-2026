@@ -3,7 +3,7 @@ name: 更新比分
 on:
   schedule:
     # UTC 每 6 小时跑一次（覆盖北美赛事结束后），非整点避开调度高峰
-    - cron: '17 0,6,12,18 * * *'
+    - cron: '17 */3 * * *'
   workflow_dispatch: # 支持在 GitHub 页面手动触发
 
 permissions:
