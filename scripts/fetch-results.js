@@ -48,6 +48,7 @@ async function main() {
   console.log(`✓ 已更新 ${results.length} 场完赛赛果 → ${path.relative(process.cwd(), OUT)}`);
   await fetchPlayerStats();
   await fetchKnockoutReal();
+  await fetchSchedule();
 }
 
 /* 抓淘汰赛真实赛果（32强~决赛，6-28~7-19）→ knockout-real.json */
@@ -74,6 +75,52 @@ async function fetchKnockoutReal(){
   }
   fs.writeFileSync(KOUT, JSON.stringify(res,null,2)+'\n');
   console.log(`✓ 淘汰赛真实赛果 ${res.length} 场 → ${path.relative(process.cwd(), KOUT)}`);
+}
+
+/* 抓淘汰赛完整赛程（含未赛预告 / 进行中 / 已赛）→ schedule.json
+   供「赛果焦点」按日期显示到最新：最新已赛 + 下场未赛对决。
+   state: pre(未赛) / in(进行中) / post(已赛)；按日期+时间升序。 */
+async function fetchSchedule(){
+  const SOUT = path.join(__dirname, '..', 'assets', 'data', 'schedule.json');
+  const DAYS = [];
+  for(let d=28;d<=30;d++) DAYS.push('202606'+String(d).padStart(2,'0'));
+  for(let d=1;d<=19;d++) DAYS.push('202607'+String(d).padStart(2,'0'));
+  // 按日期推断轮次（与 FIFA 赛程一致）
+  const roundOf = date => {
+    const m=+date.slice(5,7), day=+date.slice(8,10);
+    if(m===6&&day>=28 || m===7&&day<=3) return '32强';
+    if(m===7&&day>=4&&day<=7)  return '16强';
+    if(m===7&&day>=8&&day<=11) return '1/4决赛';
+    if(m===7&&day>=14&&day<=15)return '半决赛';
+    if(m===7&&day===18)        return '三四名';
+    if(m===7&&day>=19)         return '决赛';
+    return '淘汰赛';
+  };
+  const res=[]; const seen=new Set();
+  for(const d of DAYS){
+    let data;
+    try{ const r=await fetch(URL(d)); data=await r.json(); }catch(e){ continue; }
+    for(const ev of data.events||[]){
+      const c=ev.competitions&&ev.competitions[0]; if(!c) continue;
+      const comps=c.competitors||[];
+      const home=comps.find(x=>x.homeAway==='home'), away=comps.find(x=>x.homeAway==='away');
+      if(!home||!away) continue;
+      const h=code(home.team.abbreviation), a=code(away.team.abbreviation);
+      // 跳过待定占位（SFW1/SFW2 等非国家代码：含数字或超长）
+      if(!h||!a||h.length>3||a.length>3||/\d/.test(h)||/\d/.test(a)) continue;
+      const st=ev.status&&ev.status.type;
+      const state=st?st.state:'scheduled';
+      const date=ev.date?ev.date.slice(0,10):d.slice(0,4)+'-'+d.slice(4,6)+'-'+d.slice(6,8);
+      const t=ev.date?ev.date.slice(11,16):'';
+      const key=[h,a].sort().join('_')+'_'+date;
+      if(seen.has(key)) continue; seen.add(key);
+      res.push({h,a,hs:+home.score||0,as:+away.score||0,d:date,t,state,round:roundOf(date)});
+    }
+  }
+  res.sort((x,y)=>(x.d+'T'+(x.t||'')).localeCompare(y.d+'T'+(y.t||'')));
+  fs.writeFileSync(SOUT, JSON.stringify(res,null,2)+'\n');
+  const post=res.filter(x=>x.state==='post').length;
+  console.log(`✓ 淘汰赛赛程 ${res.length} 场（已赛 ${post} / 未赛 ${res.length-post}）→ ${path.relative(process.cwd(), SOUT)}`);
 }
 
 /* 抓 ESPN 球员统计（射手榜 / 助攻榜）→ player-stats.json */

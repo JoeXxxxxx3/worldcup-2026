@@ -198,61 +198,119 @@
     return {total, hit, miss, t, wlTotal, wlHit};
   }
 
-  /* 焦点以「相对最新完赛的偏移」定位：0=最新赛果复盘，+1=下一场预告，-1/-2…=历史。
-     赛程推进（新赛果合并）时 base 前移，焦点自动跟随 → 真正随赛程同步最新赛果。 */
-  let focusOffset = 0;
-  function focusBaseIdx(){
-    let last=-1; GROUPS.forEach((m,i)=>{ if(m[7]===1) last=i; });
-    return last>=0 ? last : 0;
+  /* ============ 赛果焦点（小组赛 / 淘汰赛 双模块） ============
+     淘汰赛模块 = 淘汰赛的单场「聚焦放大」视图（信息更全：Elo / xG / Top 比分），
+     采用原生横向滚动 + scroll-snap，手感与淘汰赛 bracket 一致（momentum + 吸附）。
+     默认滚到最新一场，左右滑 / 点箭头浏览；淘汰赛板块本身则是全局一览。 */
+  let focusTab = 'group';        // 'group' | 'ko'，init 时按赛程阶段选默认
+  let focusScrollIdx = -1;       // 用户当前浏览位置（-1 → 回到最新）
+  let koSchedule=[];
+  /* 通用预测：Elo + 泊松 → 三态概率 + 期望进球 + Top 比分 + Elo 分（淘汰赛深度卡用） */
+  function predictMatch(h, a, host=0){
+    if(!TEAMS[h]||!TEAMS[a]) return null;
+    const th=TEAMS[h],ta=TEAMS[a];
+    const [lh,la]=lambdas(th.r,ta.r,host);
+    const N=7, mat=[];
+    for(let i=0;i<N;i++){mat[i]=[];for(let j=0;j<N;j++)mat[i][j]=poissonPmf(i,lh)*poissonPmf(j,la)*100;}
+    let pw=0,pd=0,pl=0;
+    for(let i=0;i<N;i++)for(let j=0;j<N;j++){ if(i>j)pw+=mat[i][j]; else if(i===j)pd+=mat[i][j]; else pl+=mat[i][j]; }
+    const flat=[]; for(let i=0;i<N;i++)for(let j=0;j<N;j++) flat.push([i+'-'+j,mat[i][j]]);
+    flat.sort((x,y)=>y[1]-x[1]);
+    return {pw:Math.round(pw),pd:Math.round(pd),pl:Math.round(pl),
+      top:flat.slice(0,3).map(x=>[x[0],+x[1].toFixed(1)]),
+      lh:+lh.toFixed(2), la:+la.toFixed(2), eh:ELO(th.r), ea:ELO(ta.r)};
   }
-  function focusIdxNow(){ return Math.max(0, Math.min(GROUPS.length-1, focusBaseIdx()+focusOffset)); }
-  function focusStep(dir){
-    const base=focusBaseIdx();
-    focusOffset = Math.max(-base, Math.min(GROUPS.length-1-base, focusOffset+dir));
-    renderAccuracy();
+  /* 标准化：GROUPS 场次 / 淘汰赛赛程项 → 统一卡片结构 */
+  function normGroup(m){
+    const [g,v,host,h,a,hs,as,played,pw,pd,pl,ts]=m;
+    return {h,a,hs,as,host,played:played===1,ko:false,round:g+'组',venue:v,date:'',time:'',pw,pd,pl,ts:ts||[]};
+  }
+  function normKO(x){
+    const p=predictMatch(x.h,x.a,0)||{pw:0,pd:0,pl:0,top:[]};
+    return {h:x.h,a:x.a,hs:x.hs,as:x.as,host:0,played:x.state==='post',ko:true,
+      round:x.round||'淘汰赛',venue:'',date:x.d||'',time:x.t||'',
+      pw:p.pw,pd:p.pd,pl:p.pl,ts:p.top,lh:p.lh,la:p.la,eh:p.eh,ea:p.ea};
+  }
+  function focusList(){ return focusTab==='ko' ? koSchedule.map(normKO) : GROUPS.map(normGroup); }
+  function focusBaseIdx(){
+    const L=focusList(); let last=-1;
+    L.forEach((m,i)=>{ if(m.played) last=i; });
+    return last>=0?last:0;
+  }
+  function focusPosHTML(m, i, total, base){
+    const atLatest = i===base;
+    return `${atLatest?'<b class="fp-live">● 最新赛果</b> · ':'近期 · '}第 ${i+1} / ${total} 场 · ${m.played?'已完赛复盘':'未赛预告'}${m.date?` · ${m.date}${m.time?' '+m.time:''}`:''} · 左右滑动 / 点箭头切换`;
   }
   function renderAccuracy(){
     const acc = calcAccuracy();
     const rate = acc.total ? (acc.hit/acc.total*100).toFixed(1) : '0.0';
-    const fi = focusIdxNow();
-    const m = GROUPS[fi] || GROUPS[0];
-    const atLatest = focusOffset===0;
+    const L=focusList();
+    const total = L.length || 1;
+    const base = focusBaseIdx();
+    const startIdx = focusScrollIdx>=0 && focusScrollIdx<total ? focusScrollIdx : base;
+    const koPost = koSchedule.filter(x=>x.state==='post').length;
+    const tabHTML = `<div class="focus-tabs">
+        <button class="focus-tab ${focusTab==='group'?'active':''}" data-tab="group">小组赛</button>
+        <button class="focus-tab ${focusTab==='ko'?'active':''}" data-tab="ko">淘汰赛${koSchedule.length?` · 已赛 ${koPost}`:''}</button>
+      </div>`;
     $('#accuracyBody').innerHTML = `
+      ${tabHTML}
       <div class="acc-rate-bar reveal">
         <div class="acc-rate"><b>${rate}<i>%</i></b></div>
         <div class="acc-rate-sub">模型命中率 · <b>${acc.hit}</b>/${acc.total} 场命中 · 胜负识别 ${acc.wlHit}/${acc.wlTotal} · 平局 ${acc.t.draw.h}/${acc.t.draw.t}</div>
       </div>
       <div class="focus-stage">
-        <button class="focus-nav" data-dir="-1" ${fi<=0?'disabled':''} aria-label="上一场">‹</button>
-        <div class="focus-main">${focusCard(m)}</div>
-        <button class="focus-nav" data-dir="1" ${fi>=GROUPS.length-1?'disabled':''} aria-label="下一场">›</button>
+        <button class="focus-nav" data-dir="-1" aria-label="上一场">‹</button>
+        <div class="focus-scroll" id="focusScroll">
+          ${L.map((m,i)=>`<div class="focus-slide${i===base?' is-latest':''}" data-i="${i}">${focusCard(m)}</div>`).join('')}
+        </div>
+        <button class="focus-nav" data-dir="1" aria-label="下一场">›</button>
       </div>
-      <div class="focus-pos">${atLatest?'<b class="fp-live">● 最新赛果</b> · ':'近期 · '}第 ${fi+1} / ${GROUPS.length} 场 · ${m[7]===1?'已完赛复盘':'未赛预告'} · 点箭头 / 手机左右滑动切换</div>`;
-    // 动态重渲染产生的 .reveal 是全新节点，IntersectionObserver 只 observe 一次，
-    // 翻页后不会再次触发 → 必须手动补 .in，否则停在 opacity:0 表现为中间空白。
+      <div class="focus-pos" id="focusPos">${focusPosHTML(L[startIdx]||L[0], startIdx, total, base)}</div>`;
+    // 默认滚到最新 / 记忆位置；滑动时实时更新底部文案并隐藏箭头
+    const sc=$('#focusScroll');
+    if(sc){
+      sc.scrollLeft = startIdx * sc.offsetWidth;
+      let t=null;
+      sc.addEventListener('scroll', ()=>{
+        const idx=Math.max(0,Math.min(total-1, Math.round(sc.scrollLeft/(sc.offsetWidth||1))));
+        focusScrollIdx = idx;
+        const pos=$('#focusPos'); if(pos) pos.innerHTML=focusPosHTML(L[idx], idx, total, base);
+        const st=sc.closest('.focus-stage'); if(st) st.classList.add('sliding');
+        clearTimeout(t); t=setTimeout(()=>{ if(st) st.classList.remove('sliding'); }, 220);
+      }, {passive:true});
+    }
+    // 动态重渲染产生的 .reveal 是全新节点，IntersectionObserver 只 observe 一次 → 手动补 .in
     $$('#accuracyBody .reveal').forEach(el=>el.classList.add('in'));
   }
   function focusCard(m){
-    const [g,v,host,h,a,hs,as,played,pw,pd,pl,ts]=m;
+    const {h,a,hs,as,host,played,ko,round,venue,date,time,ts,pw,pd,pl,lh,la,eh,ea}=m;
     const th=TEAMS[h],ta=TEAMS[a];
     const pred=pw>=pd&&pw>=pl?'win':(pl>=pd?'loss':'draw');
     const predTxt=pred==='win'?`${th.n}胜`:pred==='loss'?`${ta.n}胜`:'平局';
     const probs=`<div class="fc-probs"><div class="fc-prob ${pred==='win'?'is-pred':''}"><b>${pw}%</b>${th.n}胜</div><div class="fc-prob ${pred==='draw'?'is-pred':''}"><b>${pd}%</b>平</div><div class="fc-prob ${pred==='loss'?'is-pred':''}"><b>${pl}%</b>${ta.n}胜</div></div>`;
     const teams=`<div class="fc-teams"><div class="fc-team"><span class="fc-flag">${flagImg(h,80)}</span><div><b>${th.n}</b>${host?'<small>主场</small>':''}</div></div><div class="fc-score">${played?hs+'<i>:</i>'+as:'VS'}</div><div class="fc-team"><span class="fc-flag">${flagImg(a,80)}</span><div><b>${ta.n}</b></div></div></div>`;
+    const topS = ts&&ts[0]?ts[0][0]:'—', topP = ts&&ts[0]?ts[0][1]:'';
+    // 淘汰赛深度区：Elo 实力对比 + 期望进球 + Top3 比分
+    const deep = ko ? `<div class="fc-deep">
+        <div class="fc-deep-row"><span>Elo 实力</span><b>${eh}</b><i>:</i><b>${ea}</b><small>差 ${Math.abs(eh-ea)}</small></div>
+        <div class="fc-deep-row"><span>期望进球 xG</span><b>${lh}</b><i>:</i><b>${la}</b></div>
+        <div class="fc-tops">最可能 ${(ts||[]).slice(0,3).map(x=>`${x[0]}<em>(${x[1]}%)</em>`).join(' · ')}</div>
+      </div>` : '';
     if(played){
       const actual=hs>as?'win':(hs<as?'loss':'draw');
       const hit=pred===actual;
       const aTxt=actual==='win'?`${th.n}胜`:actual==='loss'?`${ta.n}胜`:'平局';
-      return `<div class="fc-tag fc-tag--done">已完赛 · ${g}组 · ${v}</div>${teams}
-        <div class="fc-hitbar ${hit?'is-hit':'is-miss'}">${hit?'✅ 预测命中':'❌ 预测未命中'}</div>${probs}
-        <div class="fc-note">模型预测：<b>${predTxt}</b> · 最可能比分 <b>${ts[0][0]}</b>(${ts[0][1]}%)${hit?'':` · <span class="fc-actual">实际：<b>${aTxt} ${hs}-${as}</b></span>`}</div>`;
+      return `<div class="fc-tag fc-tag--done">已完赛 · ${round}${venue?' · '+venue:''}${date?` · ${date}`:''}</div>${teams}
+        <div class="fc-hitbar ${hit?'is-hit':'is-miss'}">${hit?'✅ 预测命中':'❌ 预测未中'}</div>${probs}
+        <div class="fc-note">模型预测：<b>${predTxt}</b> · 最可能比分 <b>${topS}</b>${topP?`(${topP}%)`:''}${hit?'':` · <span class="fc-actual">实际：<b>${aTxt} ${hs}-${as}</b></span>`}</div>${deep}`;
     }
     const weak=th.r<ta.r?h:a;
     const ur=Math.min((weak===h?pw:pl)+pd,99);
     const utag=ur>=40?'🔥 高爆冷风险':ur>=25?'⚠️ 冷门可能':'';
-    return `<div class="fc-tag fc-tag--next">未赛预告 · ${g}组 · ${v}</div>${teams}
+    return `<div class="fc-tag fc-tag--next">未赛预告 · ${round}${venue?' · '+venue:''}${date?` · ${date}${time?' '+time:''}`:''}</div>${teams}
       ${utag?`<div class="fc-hitbar fc-upset">${utag}</div>`:''}${probs}
-      <div class="fc-note">模型预测：<b>${predTxt}</b> · 最可能比分 <b>${ts[0][0]}</b>(${ts[0][1]}%)</div>`;
+      <div class="fc-note">模型预测：<b>${predTxt}</b> · 最可能比分 <b>${topS}</b>${topP?`(${topP}%)`:''}</div>${deep}`;
   }
 
   /* ============ 3. 小组赛 ============ */
@@ -840,33 +898,13 @@
      会随新赛果自然前移 —— 实现"随赛程同步当前最新赛果"。用户手动翻页后偏移固定，
      不强拉回，保持浏览位置。 */
   async function syncLatestFocus(){
-    await loadResults();
+    await Promise.all([loadResults(), loadKnockoutReal(), loadSchedule()]);
     applyElo(); recomputeOdds();
     renderPower();
     renderAccuracy();
     console.log('✓ 赛果焦点已同步最新赛程');
   }
-  /* 移动端：在赛果焦点区域左右滑动切换场次。仅水平滑动（位移 > 垂直）才接管，
-     垂直滑动交给页面正常滚动；滑动进行中淡出左右按钮，停止后恢复显示。 */
-  function setupFocusSwipe(){
-    const box=$('#accuracyBody'); if(!box) return;
-    let sx=0, sy=0, swiping=false, moved=0;
-    box.addEventListener('touchstart', e=>{ sx=e.touches[0].clientX; sy=e.touches[0].clientY; swiping=false; moved=0; }, {passive:true});
-    box.addEventListener('touchmove', e=>{
-      const dx=e.touches[0].clientX-sx, dy=e.touches[0].clientY-sy;
-      if(Math.abs(dx)>12 && Math.abs(dx)>Math.abs(dy)){
-        swiping=true; moved=dx;
-        const st=box.querySelector('.focus-stage'); if(st) st.classList.add('sliding');
-      }
-    }, {passive:true});
-    box.addEventListener('touchend', ()=>{
-      if(!swiping) return;
-      if(moved<-50) focusStep(1);        // 左滑 → 下一场
-      else if(moved>50) focusStep(-1);   // 右滑 → 上一场
-      const st=box.querySelector('.focus-stage');
-      if(st) setTimeout(()=>st.classList.remove('sliding'), 280);
-    });
-  }
+  /* 滚动隐藏按钮由 renderAccuracy 内的 scroll 监听处理（原生滚动已足够丝滑） */
   /* 加载 ESPN 球员统计（覆盖内置 PLAYER_AWARDS，实现球员榜自动更新） */
   async function loadPlayerStats(){
     try{
@@ -888,6 +926,15 @@
       knockoutReal=await res.json();
       console.log(`✓ 淘汰赛真实赛果 ${knockoutReal.length} 场已加载`);
     }catch(e){ console.warn('knockout-real.json 未加载，使用纯推演'); }
+  }
+  /* 加载淘汰赛完整赛程（含未赛预告）→ koSchedule，供赛果焦点淘汰赛模块 */
+  async function loadSchedule(){
+    try{
+      const res=await fetch('assets/data/schedule.json?t='+Date.now());
+      if(!res.ok) return;
+      koSchedule=await res.json();
+      console.log(`✓ 淘汰赛赛程 ${koSchedule.length} 场已加载（赛果焦点·淘汰赛模块）`);
+    }catch(e){ console.warn('schedule.json 未加载，淘汰赛模块仅显示已赛'); }
   }
 
   /* ============ 动态 Elo 实力调整（爆冷自适应） ============
@@ -1036,6 +1083,7 @@
     await loadResults();
     await loadPlayerStats();
     await loadKnockoutReal();
+    await loadSchedule();
     applyElo();
     recomputeOdds();
     dynamicKO = buildKnockout();
@@ -1053,12 +1101,17 @@
     renderPath();
     renderProfiles();
     renderMethod();
+    // 默认焦点模块：小组赛全完赛且淘汰赛赛程已就绪 → 跟随到淘汰赛（最新赛果在淘汰赛）
+    { const grpDone = GROUPS.every(m=>m[7]===1); focusTab = (grpDone && koSchedule.length) ? 'ko' : 'group'; }
     renderAccuracy();
     $('#accuracyBody').addEventListener('click',e=>{
+      const tb=e.target.closest('.focus-tab');
+      if(tb&&tb.dataset.tab){ focusTab=tb.dataset.tab; focusScrollIdx=-1; renderAccuracy(); return; }
       const b=e.target.closest('.focus-nav');
-      if(b&&b.dataset.dir&&!b.disabled) focusStep(+b.dataset.dir);
+      if(b&&b.dataset.dir){
+        const sc=$('#focusScroll'); if(sc) sc.scrollBy({left:(+b.dataset.dir)*sc.offsetWidth, behavior:'smooth'});
+      }
     });
-    setupFocusSwipe();                       // 移动端：左右滑动切换赛果焦点
     setInterval(syncLatestFocus, 5*60*1000); // 每 5 分钟同步最新赛果，焦点随赛程自动前进
     observeReveal();
     setupTheme();

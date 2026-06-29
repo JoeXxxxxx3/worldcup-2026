@@ -559,7 +559,23 @@ ul{list-style:none}
 .focus-nav{flex-shrink:0;width:46px;background:var(--surface);border:1px solid var(--gold-line);color:var(--gold);font-size:28px;font-weight:700;cursor:pointer;border-radius:var(--r-lg);transition:all .2s;line-height:1}
 .focus-nav:hover:not(:disabled){background:var(--gold);color:#0A0D14}
 .focus-nav:disabled{opacity:.3;cursor:not-allowed}
-.focus-main{flex:1;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:22px 24px}
+.focus-scroll{flex:1;min-width:0;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;display:flex;-webkit-overflow-scrolling:touch}
+.focus-scroll::-webkit-scrollbar{display:none}
+.focus-slide{min-width:100%;flex-shrink:0;scroll-snap-align:center;scroll-snap-stop:always;display:flex}
+.focus-slide>.focus-main{flex:1;width:100%}
+.focus-main{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:22px 24px}
+.fc-deep{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);display:flex;flex-direction:column;gap:6px}
+.fc-deep-row{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--text-mute)}
+.fc-deep-row span{flex:1}
+.fc-deep-row b{font-family:var(--fm);color:var(--text-dim);min-width:38px;text-align:center}
+.fc-deep-row i{font-style:normal;color:var(--text-mute)}
+.fc-deep-row small{color:var(--gold);font-family:var(--fm)}
+.fc-tops{font-size:11px;color:var(--text-mute)}
+.fc-tops em{font-style:normal;color:var(--gold);font-family:var(--fm);margin-left:2px}
+.focus-tabs{display:flex;gap:8px;justify-content:center;margin-bottom:16px}
+.focus-tab{background:var(--surface);border:1px solid var(--line);color:var(--text-mute);font-family:var(--fm);font-size:12px;font-weight:700;padding:7px 18px;border-radius:20px;cursor:pointer;transition:all .2s;letter-spacing:.5px}
+.focus-tab:hover{border-color:var(--gold-line);color:var(--text-dim)}
+.focus-tab.active{background:var(--gold);color:#0A0D14;border-color:var(--gold)}
 .focus-pos{text-align:center;font-family:var(--fm);font-size:11px;color:var(--text-mute);margin-top:14px;letter-spacing:1px}
 .fp-live{color:#e63946;font-weight:700;animation:fpPulse 1.6s ease-in-out infinite}
 @keyframes fpPulse{0%,100%{opacity:1}50%{opacity:.45}}
