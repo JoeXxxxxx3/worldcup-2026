@@ -939,6 +939,7 @@
     applyElo(); recomputeOdds();
     renderPower();
     renderAccuracy();
+    renderHero();
     console.log('✓ 赛果焦点已同步最新赛程');
   }
   /* 滚动隐藏按钮由 renderAccuracy 内的 scroll 监听处理（原生滚动已足够丝滑） */
@@ -970,6 +971,12 @@
       const res=await fetch('assets/data/schedule.json?t='+Date.now());
       if(!res.ok) return;
       koSchedule=await res.json();
+      // "数据截至"覆盖为淘汰赛最新已赛日期（小组赛 results 止 6-27，淘汰赛已推进到 6-28+）
+      const ko=koSchedule.filter(x=>x.state==='post'&&x.d);
+      if(ko.length){
+        const latest=ko.map(x=>x.d).sort().pop();
+        if(latest && (!META.updated || latest>META.updated)) META.updated=latest;
+      }
       console.log(`✓ 淘汰赛赛程 ${koSchedule.length} 场已加载（赛果焦点·淘汰赛模块）`);
     }catch(e){ console.warn('schedule.json 未加载，淘汰赛模块仅显示已赛'); }
   }
