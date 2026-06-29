@@ -218,7 +218,7 @@
       const pTxt=pred==='win'?`${th.n}胜`:pred==='loss'?`${ta.n}胜`:'平局';
       const aTxt=actual==='win'?`${th.n}胜`:actual==='loss'?`${ta.n}胜`:'平局';
       return `<div class="fc-tag fc-tag--done">最近完赛 · ${g}组</div>
-        <div class="fc-teams"><div class="fc-team"><span class="fc-flag">${flagImg(h,56)}</span><div><b>${th.n}</b></div></div><div class="fc-score">${hs}<i>:</i>${as}</div><div class="fc-team"><span class="fc-flag">${flagImg(a,56)}</span><div><b>${ta.n}</b></div></div></div>
+        <div class="fc-teams"><div class="fc-team"><span class="fc-flag">${flagImg(h,80)}</span><div><b>${th.n}</b></div></div><div class="fc-score">${hs}<i>:</i>${as}</div><div class="fc-team"><span class="fc-flag">${flagImg(a,80)}</span><div><b>${ta.n}</b></div></div></div>
         <div class="fc-hitbar ${hit?'is-hit':'is-miss'}">${hit?'✅ 预测命中':'❌ 预测未命中'}</div>
         <div class="fc-probs"><div class="fc-prob ${pred==='win'?'is-pred':''}"><b>${pw}%</b>${th.n}胜</div><div class="fc-prob ${pred==='draw'?'is-pred':''}"><b>${pd}%</b>平</div><div class="fc-prob ${pred==='loss'?'is-pred':''}"><b>${pl}%</b>${ta.n}胜</div></div>
         <div class="fc-note">模型预测：<b>${pTxt}</b> · 最可能比分 <b>${ts[0][0]}</b>(${ts[0][1]}%)${hit?'':` · <span class="fc-actual">实际：<b>${aTxt} (${hs}-${as})</b> 偏差</span>`}</div>`;
@@ -235,7 +235,7 @@
         const pred=pw>=pd&&pw>=pl?'win':(pl>=pd?'loss':'draw');
         const pTxt=pred==='win'?`${th.n}胜`:pred==='loss'?`${ta.n}胜`:'平局';
         return `<div class="fc-tag fc-tag--next">下一场预告 · 淘汰赛</div>
-          <div class="fc-teams"><div class="fc-team"><span class="fc-flag">${flagImg(m.h,56)}</span><div><b>${th.n}</b></div></div><div class="fc-score">VS</div><div class="fc-team"><span class="fc-flag">${flagImg(m.a,56)}</span><div><b>${ta.n}</b></div></div></div>
+          <div class="fc-teams"><div class="fc-team"><span class="fc-flag">${flagImg(m.h,80)}</span><div><b>${th.n}</b></div></div><div class="fc-score">VS</div><div class="fc-team"><span class="fc-flag">${flagImg(m.a,80)}</span><div><b>${ta.n}</b></div></div></div>
           <div class="fc-hitbar fc-upset">${utag}</div>
           <div class="fc-probs"><div class="fc-prob ${pred==='win'?'is-pred':''}"><b>${pw}%</b>${th.n}胜</div><div class="fc-prob ${pred==='draw'?'is-pred':''}"><b>${pd}%</b>平</div><div class="fc-prob ${pred==='loss'?'is-pred':''}"><b>${pl}%</b>${ta.n}胜</div></div>
           <div class="fc-note">模型推演：<b>${pTxt}</b> · 预测比分 <b>${m.hs}-${m.as}</b> · ${TEAMS[m.w].n}晋级</div>`;
@@ -248,7 +248,7 @@
       const ur=Math.min((weak===h?pw:pl)+pd,99);
       const utag=ur>=40?'🔥 高爆冷风险':ur>=25?'⚠️ 冷门可能':'';
       return `<div class="fc-tag fc-tag--next">下一场预告 · ${g}组${host?'· '+th.n+'主场':''}</div>
-        <div class="fc-teams"><div class="fc-team"><span class="fc-flag">${flagImg(h,56)}</span><div><b>${th.n}</b></div></div><div class="fc-score">VS</div><div class="fc-team"><span class="fc-flag">${flagImg(a,56)}</span><div><b>${ta.n}</b></div></div></div>
+        <div class="fc-teams"><div class="fc-team"><span class="fc-flag">${flagImg(h,80)}</span><div><b>${th.n}</b></div></div><div class="fc-score">VS</div><div class="fc-team"><span class="fc-flag">${flagImg(a,80)}</span><div><b>${ta.n}</b></div></div></div>
         ${utag?`<div class="fc-hitbar fc-upset">${utag}</div>`:''}
         <div class="fc-probs"><div class="fc-prob ${pred==='win'?'is-pred':''}"><b>${pw}%</b>${th.n}胜</div><div class="fc-prob ${pred==='draw'?'is-pred':''}"><b>${pd}%</b>平</div><div class="fc-prob ${pred==='loss'?'is-pred':''}"><b>${pl}%</b>${ta.n}胜</div></div>
         <div class="fc-note">模型预测：<b>${pTxt}</b> · 最可能比分 <b>${ts[0][0]}</b>(${ts[0][1]}%)</div>`;
