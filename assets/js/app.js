@@ -285,6 +285,15 @@
     // 动态重渲染产生的 .reveal 是全新节点，IntersectionObserver 只 observe 一次 → 手动补 .in
     $$('#accuracyBody .reveal').forEach(el=>el.classList.add('in'));
   }
+  /* 球队本届小组赛战绩（已赛场统计：胜/平/负、进球/失球） */
+  function teamForm(code){
+    const f={w:0,d:0,l:0,gf:0,ga:0};
+    GROUPS.forEach(m=>{ if(m[7]!==1) return;
+      if(m[3]===code){f.gf+=m[5];f.ga+=m[6];m[5]>m[6]?f.w++:m[5]<m[6]?f.l++:f.d++;}
+      else if(m[4]===code){f.gf+=m[6];f.ga+=m[5];m[6]>m[5]?f.w++:m[6]<m[5]?f.l++:f.d++;}
+    });
+    return f;
+  }
   function focusCard(m){
     const {h,a,hs,as,host,played,ko,round,venue,date,time,ts,pw,pd,pl,lh,la,eh,ea}=m;
     const th=TEAMS[h],ta=TEAMS[a];
@@ -316,6 +325,9 @@
     const ur=Math.min((weak===h?pw:pl)+pd,99);
     const upset=(!played&&ur>=25)?`<div class="fc-upset">${ur>=40?'🔥 高爆冷风险':'⚠️ 冷门可能'}</div>`:'';
     const actLn=(played&&!hit)?`<div class="fc-actln">实际：<b>${aTxt} ${hs}-${as}</b></div>`:'';
+    const fh=teamForm(h),ffa=teamForm(a);
+    const fmt=f=>`${f.w}胜${f.d}平${f.l}负`;
+    const frk=c=>FIFA_RANK[c]?`FIFA 第${FIFA_RANK[c]}`:'';
     return `<div class="fc-card">
       <div class="fc-top"><span class="fc-meta">${meta}</span>${badge}</div>
       <div class="fc-body">
@@ -326,6 +338,10 @@
             <div class="fc-side fc-side--r"><b>${ta.n}</b><span class="fc-flag">${flagImg(a,80)}</span></div>
           </div>
           ${upset}
+          <div class="fc-form">
+            <div class="fc-form-t"><span class="fc-flag">${flagImg(h,40)}</span><div><b>${th.n}</b><small>${fmt(fh)}${frk(h)?` · ${frk(h)}`:''}</small></div></div>
+            <div class="fc-form-t"><span class="fc-flag">${flagImg(a,40)}</span><div><b>${ta.n}</b><small>${fmt(ffa)}${frk(a)?` · ${frk(a)}`:''}</small></div></div>
+          </div>
         </div>
         <div class="fc-right">
           ${bar}${barLbl}${deep}${pills}${actLn}

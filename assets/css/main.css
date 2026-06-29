@@ -595,6 +595,12 @@ ul{list-style:none}
 .fc-card{display:flex;flex-direction:column;gap:14px}
 .fc-body{display:flex;flex-direction:column;gap:14px}
 .fc-left,.fc-right{display:flex;flex-direction:column;gap:12px;min-width:0}
+.fc-form{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding-top:12px;border-top:1px solid var(--line)}
+.fc-form-t{display:flex;align-items:center;gap:8px;min-width:0}
+.fc-form-t .fc-flag{width:26px;height:18px}
+.fc-form-t b{font-size:13px;white-space:nowrap}
+.fc-form-t>div{display:flex;flex-direction:column;min-width:0}
+.fc-form-t small{font-size:10.5px;color:var(--text-mute);font-family:var(--fm);margin-top:2px}
 @media(min-width:780px){.fc-body{display:grid;grid-template-columns:minmax(320px,1fr) minmax(320px,1.05fr);gap:40px;align-items:center}}
 .fc-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .fc-meta{font-size:11px;color:var(--text-mute);letter-spacing:.5px;font-family:var(--fm)}
