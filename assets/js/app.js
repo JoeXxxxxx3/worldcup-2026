@@ -19,7 +19,7 @@
     return '';
   };
   /* 泊松模型工具（比分概率热力图） */
-  const ELO = r => 1500 + (r - 75) * 12;
+  const ELO = r => Math.round(1500 + (r - 75) * 12);   // Elo 取整显示（多位小数难看）
   const poissonPmf = (k, l) => { if(l<=0) return k===0?1:0; let p=Math.exp(-l); for(let i=1;i<=k;i++) p*=l/i; return p; };
   const lambdas = (rh, ra, host) => {
     const base=1.35, sc=55, ha = host ? 1.12 : 1;
@@ -287,30 +287,42 @@
     const {h,a,hs,as,host,played,ko,round,venue,date,time,ts,pw,pd,pl,lh,la,eh,ea}=m;
     const th=TEAMS[h],ta=TEAMS[a];
     const pred=pw>=pd&&pw>=pl?'win':(pl>=pd?'loss':'draw');
-    const predTxt=pred==='win'?`${th.n}胜`:pred==='loss'?`${ta.n}胜`:'平局';
-    const probs=`<div class="fc-probs"><div class="fc-prob ${pred==='win'?'is-pred':''}"><b>${pw}%</b>${th.n}胜</div><div class="fc-prob ${pred==='draw'?'is-pred':''}"><b>${pd}%</b>平</div><div class="fc-prob ${pred==='loss'?'is-pred':''}"><b>${pl}%</b>${ta.n}胜</div></div>`;
-    const teams=`<div class="fc-teams"><div class="fc-team"><span class="fc-flag">${flagImg(h,80)}</span><div><b>${th.n}</b>${host?'<small>主场</small>':''}</div></div><div class="fc-score">${played?hs+'<i>:</i>'+as:'VS'}</div><div class="fc-team"><span class="fc-flag">${flagImg(a,80)}</span><div><b>${ta.n}</b></div></div></div>`;
-    const topS = ts&&ts[0]?ts[0][0]:'—', topP = ts&&ts[0]?ts[0][1]:'';
-    // 淘汰赛深度区：Elo 实力对比 + 期望进球 + Top3 比分
-    const deep = ko ? `<div class="fc-deep">
-        <div class="fc-deep-row"><span>Elo 实力</span><b>${eh}</b><i>:</i><b>${ea}</b><small>差 ${Math.abs(eh-ea)}</small></div>
-        <div class="fc-deep-row"><span>期望进球 xG</span><b>${lh}</b><i>:</i><b>${la}</b></div>
-        <div class="fc-tops">最可能 ${(ts||[]).slice(0,3).map(x=>`${x[0]}<em>(${x[1]}%)</em>`).join(' · ')}</div>
-      </div>` : '';
+    // 命中徽章
+    let badge='<span class="fc-badge live">未赛</span>', hit=true, aTxt='';
     if(played){
       const actual=hs>as?'win':(hs<as?'loss':'draw');
-      const hit=pred===actual;
-      const aTxt=actual==='win'?`${th.n}胜`:actual==='loss'?`${ta.n}胜`:'平局';
-      return `<div class="fc-tag fc-tag--done">已完赛 · ${round}${venue?' · '+venue:''}${date?` · ${date}`:''}</div>${teams}
-        <div class="fc-hitbar ${hit?'is-hit':'is-miss'}">${hit?'✅ 预测命中':'❌ 预测未中'}</div>${probs}
-        <div class="fc-note">模型预测：<b>${predTxt}</b> · 最可能比分 <b>${topS}</b>${topP?`(${topP}%)`:''}${hit?'':` · <span class="fc-actual">实际：<b>${aTxt} ${hs}-${as}</b></span>`}</div>${deep}`;
+      hit=pred===actual;
+      aTxt=actual==='win'?`${th.n}胜`:actual==='loss'?`${ta.n}胜`:'平局';
+      badge=`<span class="fc-badge ${hit?'ok':'no'}">${hit?'✓ 预测命中':'✕ 预测未中'}</span>`;
     }
+    // Elo / xG 对比条左队占比
+    const eloPct=(eh+ea)?Math.round(eh/(eh+ea)*100):50;
+    const xgPct=(lh+la)?Math.round(lh/(lh+la)*100):50;
+    const meta=`${round}${date?` · ${date}${time?' '+time:''}`:''}${venue?' · '+venue:''}`;
+    // 三态彩色比例条
+    const bar=`<div class="fc-3bar"><div class="fc-3w" style="flex:${pw}"></div><div class="fc-3d" style="flex:${pd}"></div><div class="fc-3l" style="flex:${pl}"></div></div>`;
+    const barLbl=`<div class="fc-3lbl"><span>${th.n}胜 <b>${pw}%</b></span><span>平 <b>${pd}%</b></span><span>${ta.n}胜 <b>${pl}%</b></span></div>`;
+    // 深度对比（淘汰赛）
+    const deep=ko?`<div class="fc-cmp">
+        <div class="fc-cmp-row"><b class="fc-cmp-l">${eh}</b><div class="fc-cmp-mid"><small>Elo 实力</small><div class="fc-cmp-track"><i style="width:${eloPct}%"></i></div></div><b class="fc-cmp-r">${ea}</b></div>
+        <div class="fc-cmp-row"><b class="fc-cmp-l">${lh.toFixed(2)}</b><div class="fc-cmp-mid"><small>期望进球 xG</small><div class="fc-cmp-track"><i style="width:${xgPct}%"></i></div></div><b class="fc-cmp-r">${la.toFixed(2)}</b></div>
+      </div>`:'';
+    // Top 比分药丸
+    const pills=(ts&&ts.length)?`<div class="fc-pills"><small>最可能比分</small>${ts.slice(0,3).map(x=>`<span class="fc-pill"><b>${x[0]}</b><em>${x[1]}%</em></span>`).join('')}</div>`:'';
+    // 爆冷风险（未赛）
     const weak=th.r<ta.r?h:a;
     const ur=Math.min((weak===h?pw:pl)+pd,99);
-    const utag=ur>=40?'🔥 高爆冷风险':ur>=25?'⚠️ 冷门可能':'';
-    return `<div class="fc-tag fc-tag--next">未赛预告 · ${round}${venue?' · '+venue:''}${date?` · ${date}${time?' '+time:''}`:''}</div>${teams}
-      ${utag?`<div class="fc-hitbar fc-upset">${utag}</div>`:''}${probs}
-      <div class="fc-note">模型预测：<b>${predTxt}</b> · 最可能比分 <b>${topS}</b>${topP?`(${topP}%)`:''}</div>${deep}`;
+    const upset=(!played&&ur>=25)?`<div class="fc-upset">${ur>=40?'🔥 高爆冷风险':'⚠️ 冷门可能'}</div>`:'';
+    const actLn=(played&&!hit)?`<div class="fc-actln">实际：<b>${aTxt} ${hs}-${as}</b></div>`:'';
+    return `<div class="fc-card">
+      <div class="fc-top"><span class="fc-meta">${meta}</span>${badge}</div>
+      <div class="fc-match">
+        <div class="fc-side fc-side--l"><b>${th.n}</b>${host?'<i>主场</i>':''}<span class="fc-flag">${flagImg(h,64)}</span></div>
+        <div class="fc-sc">${played?`<b>${hs}</b><i>:</i><b>${as}</b>`:'<small>VS</small>'}</div>
+        <div class="fc-side fc-side--r"><span class="fc-flag">${flagImg(a,64)}</span><b>${ta.n}</b></div>
+      </div>
+      ${bar}${barLbl}${upset}${deep}${pills}${actLn}
+    </div>`;
   }
 
   /* ============ 3. 小组赛 ============ */
