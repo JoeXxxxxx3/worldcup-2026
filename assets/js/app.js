@@ -476,7 +476,16 @@
     const koPick=(h,a)=>realMatch(h,a)||predictKO(h,a);
     const r32=r32def.map(([h,a])=>koPick(h,a)).filter(Boolean);
     if(r32.length<16) return null;
-    const mk=arr=>{const r=[];for(let i=0;i<arr.length;i+=2){if(arr[i]&&arr[i+1])r.push(koPick(arr[i].w,arr[i+1].w));}return r;};
+    const mk=arr=>{const r=[];for(let i=0;i<arr.length;i+=2){
+      if(!arr[i]||!arr[i+1])continue;
+      const m1=arr[i], m2=arr[i+1];
+      const real=realMatch(m1.w,m2.w);
+      if(real){r.push(real);continue;}
+      const m=predictKO(m1.w,m2.w);
+      if(!m1.real) m.tbdH=[m1.h,m1.a];   // h 方来自未踢上轮 → 待定候选
+      if(!m2.real) m.tbdA=[m2.h,m2.a];
+      r.push(m);
+    }return r;};
     const r16=mk(r32), qf=mk(r16), sf=mk(qf);
     if(sf.length<2) return null;
     const final=koPick(sf[0].w,sf[1].w);
@@ -485,26 +494,23 @@
     const third=koPick(l0,l1);
     return {r32,r16,qf,sf,final:[final],third:[third]};
   }
+  const tbdPct=(c1,c2)=>Math.round(TEAMS[c1].r/(TEAMS[c1].r+TEAMS[c2].r)*100);
   function koCard(m, roundLabel, isFinal=false){
-    const {d,v,h,a,hs,as,w,et,note} = m;
+    const {d,v,h,a,hs,as,w,et,note,tbdH,tbdA,real} = m;
     const focus = isFocus(h,a);
     const champ = onChampPath(h,a);
-    const cls = ['ko-card', isFinal?'is-final':'', focus?'is-focus':'', champ?'is-champ':''].filter(Boolean).join(' ');
-    const winH = w===h, winA = w===a;
+    const cls = ['ko-card', isFinal?'is-final':'', focus?'is-focus':'', champ?'is-champ':'', real?'is-real':''].filter(Boolean).join(' ');
+    const winH = !tbdH && w===h, winA = !tbdA && w===a;
+    const teamBlock=(code,tbd,win)=>tbd
+      ? `<span class="ko-team__flag">${flagImg(tbd[0],40)}</span><span class="ko-team__name ko-tbd">${TEAMS[tbd[0]].n}/${TEAMS[tbd[1]].n}<small>晋级 ${tbdPct(tbd[0],tbd[1])}%·${100-tbdPct(tbd[0],tbd[1])}%</small></span><span class="ko-team__score ko-team__score--tbd">?</span>`
+      : `<span class="ko-team__flag">${flagImg(code,40)}</span><span class="ko-team__name">${TEAMS[code].n}</span><span class="ko-team__score ${win&&et?'et':''}">${tbd?0:(code===h?hs:as)}</span>`;
     return `<div class="${cls}" data-h="${h}" data-a="${a}" role="button" tabindex="0" style="cursor:pointer">
       ${focus?`<span class="focus-tag">焦点战</span>`:''}
+      ${real?`<span class="focus-tag" style="background:rgba(74,222,128,.18);color:var(--win)">真实赛果</span>`:''}
       <div class="ko-card__round">${roundLabel}${d?`<span class="ko-card__date">${d}</span>`:''}</div>
-      <div class="ko-team ${winH?'win':'lose'}">
-        <span class="ko-team__flag">${flagImg(h,40)}</span>
-        <span class="ko-team__name">${TEAMS[h].n}</span>
-        <span class="ko-team__score ${winH&&et?'et':''}">${hs}</span>
-      </div>
-      <div class="ko-team ${winA?'win':'lose'}">
-        <span class="ko-team__flag">${flagImg(a,40)}</span>
-        <span class="ko-team__name">${TEAMS[a].n}</span>
-        <span class="ko-team__score ${winA&&et?'et':''}">${as}</span>
-      </div>
-      <div class="ko-card__note">${note}</div>
+      <div class="ko-team ${winH?'win':(tbdH?'tbd':'lose')}">${teamBlock(h,tbdH,winH)}</div>
+      <div class="ko-team ${winA?'win':(tbdA?'tbd':'lose')}">${teamBlock(a,tbdA,winA)}</div>
+      <div class="ko-card__note">${tbdH||tbdA?'⏳ 对阵待定(上轮未踢) · 推演':note}</div>
     </div>`;
   }
 
