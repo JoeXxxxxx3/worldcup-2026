@@ -460,17 +460,19 @@
           <div class="group-block__title"><em>${c}</em>组</div>
           <div class="group-block__meta">${metaParts.join(' ')}</div>
         </div>
-        ${realStand.length?`<table class="standings"><tbody>${
-          realStand.map((t,i)=>`<tr class="${i<2?'qual':''} ${qStatus[t.c]||''}">
-            <td class="s-rank">${i+1}</td>
-            <td class="s-flag">${flagImg(t.c,40)}</td>
-            <td class="s-name">${TEAMS[t.c].n}${tagOf(t.c)}</td>
-            <td class="s-rec">${t.w}${t.d}${t.l}</td>
-            <td class="s-gd">${t.gd>0?'+':''}${t.gd}</td>
-            <td class="s-pts">${t.pts}</td>
-          </tr>`).join('')
-        }</tbody></table>`:''}
-        <div class="matches">${ms.map(mm=>matchCard(mm, GROUPS.indexOf(mm))).join('')}</div>
+        <div class="group-block__body">
+          ${realStand.length?`<table class="standings"><tbody>${
+            realStand.map((t,i)=>`<tr class="${i<2?'qual':''} ${qStatus[t.c]||''}">
+              <td class="s-rank">${i+1}</td>
+              <td class="s-flag">${flagImg(t.c,40)}</td>
+              <td class="s-name">${TEAMS[t.c].n}${tagOf(t.c)}</td>
+              <td class="s-rec">${t.w}${t.d}${t.l}</td>
+              <td class="s-gd">${t.gd>0?'+':''}${t.gd}</td>
+              <td class="s-pts">${t.pts}</td>
+            </tr>`).join('')
+          }</tbody></table>`:''}
+          <div class="matches">${ms.map(mm=>matchCard(mm, GROUPS.indexOf(mm))).join('')}</div>
+        </div>
       </div>`;
     }).join('');
     $('#groupStage').innerHTML = html;

@@ -228,7 +228,9 @@ ul{list-style:none}
 .gtab:hover{color:var(--text);border-color:var(--line-2)}
 .gtab.active{background:var(--gold);color:#0A0D14;border-color:var(--gold)}
 
-.group-stage{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+.group-stage{display:grid;grid-template-columns:1fr;gap:24px}
+.group-block__body{display:flex;flex-direction:column;gap:20px}
+@media(min-width:900px){.group-block__body{display:grid;grid-template-columns:minmax(300px,1fr) minmax(380px,1.25fr);gap:32px;align-items:start}}
 .group-block{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:24px;transition:opacity .3s}
 .group-block.hide{display:none}
 .group-block__head{display:flex;align-items:baseline;gap:12px;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--line)}
