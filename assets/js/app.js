@@ -201,30 +201,67 @@
   function renderAccuracy(){
     const acc = calcAccuracy();
     const rate = acc.total ? (acc.hit/acc.total*100).toFixed(1) : '0.0';
-    const label = {win:'主胜', draw:'平局', loss:'客胜'};
-    const missHtml = acc.miss.map(x=>{
-      const [g,v,host,h,a,hs,as]=x.m;
-      return `<div class="acc-miss__item">
-        <span class="acc-miss__flags">${flagImg(h,40)}${flagImg(a,40)}</span>
-        <span class="acc-miss__match">${TEAMS[h].n} <b>${hs}-${as}</b> ${TEAMS[a].n}</span>
-        <span class="acc-miss__pred">预测${label[x.pred]} · 实际${label[x.actual]}</span>
-      </div>`;
-    }).join('');
+    // 最近完赛（played=1 中 index 最大）
+    let lastM=null,lastIdx=-1;
+    GROUPS.forEach((m,i)=>{ if(m[7]===1 && i>lastIdx){lastIdx=i;lastM=m;} });
+    // 下一场（未赛第一场；小组赛结束则用淘汰赛 r32[0]）
+    let nextM=null,nextType='';
+    const up=GROUPS.find(m=>m[7]!==1);
+    if(up){nextM=up;nextType='group';}
+    else if(dynamicKO&&dynamicKO.r32&&dynamicKO.r32[0]){nextM=dynamicKO.r32[0];nextType='ko';}
+    const lastHtml=lastM?(()=>{
+      const [g,v,host,h,a,hs,as,played,pw,pd,pl,ts]=lastM;
+      const th=TEAMS[h],ta=TEAMS[a];
+      const pred=pw>=pd&&pw>=pl?'win':(pl>=pd?'loss':'draw');
+      const actual=hs>as?'win':(hs<as?'loss':'draw');
+      const hit=pred===actual;
+      const pTxt=pred==='win'?`${th.n}胜`:pred==='loss'?`${ta.n}胜`:'平局';
+      const aTxt=actual==='win'?`${th.n}胜`:actual==='loss'?`${ta.n}胜`:'平局';
+      return `<div class="fc-tag fc-tag--done">最近完赛 · ${g}组</div>
+        <div class="fc-teams"><div class="fc-team"><span class="fc-flag">${flagImg(h,56)}</span><div><b>${th.n}</b></div></div><div class="fc-score">${hs}<i>:</i>${as}</div><div class="fc-team"><span class="fc-flag">${flagImg(a,56)}</span><div><b>${ta.n}</b></div></div></div>
+        <div class="fc-hitbar ${hit?'is-hit':'is-miss'}">${hit?'✅ 预测命中':'❌ 预测未命中'}</div>
+        <div class="fc-probs"><div class="fc-prob ${pred==='win'?'is-pred':''}"><b>${pw}%</b>${th.n}胜</div><div class="fc-prob ${pred==='draw'?'is-pred':''}"><b>${pd}%</b>平</div><div class="fc-prob ${pred==='loss'?'is-pred':''}"><b>${pl}%</b>${ta.n}胜</div></div>
+        <div class="fc-note">模型预测：<b>${pTxt}</b> · 最可能比分 <b>${ts[0][0]}</b>(${ts[0][1]}%)${hit?'':` · <span class="fc-actual">实际：<b>${aTxt} (${hs}-${as})</b> 偏差</span>`}</div>`;
+    })():'<div class="fc-empty">暂无已赛</div>';
+    const nextHtml=nextM?(()=>{
+      if(nextType==='ko'){
+        const m=nextM;const th=TEAMS[m.h],ta=TEAMS[m.a];
+        const pw=Math.round(1/(1+Math.pow(10,(ta.r-th.r)/30))*100);
+        const pl=Math.round(1/(1+Math.pow(10,(th.r-ta.r)/30))*100);
+        const pd=Math.max(8,100-pw-pl);
+        const weak=th.r<ta.r?m.h:m.a;
+        const ur=Math.min((weak===m.h?pw:pl)+pd,99);
+        const utag=ur>=40?'🔥 高爆冷风险':ur>=25?'⚠️ 冷门可能':'✓ 强队占优';
+        const pred=pw>=pd&&pw>=pl?'win':(pl>=pd?'loss':'draw');
+        const pTxt=pred==='win'?`${th.n}胜`:pred==='loss'?`${ta.n}胜`:'平局';
+        return `<div class="fc-tag fc-tag--next">下一场预告 · 淘汰赛</div>
+          <div class="fc-teams"><div class="fc-team"><span class="fc-flag">${flagImg(m.h,56)}</span><div><b>${th.n}</b></div></div><div class="fc-score">VS</div><div class="fc-team"><span class="fc-flag">${flagImg(m.a,56)}</span><div><b>${ta.n}</b></div></div></div>
+          <div class="fc-hitbar fc-upset">${utag}</div>
+          <div class="fc-probs"><div class="fc-prob ${pred==='win'?'is-pred':''}"><b>${pw}%</b>${th.n}胜</div><div class="fc-prob ${pred==='draw'?'is-pred':''}"><b>${pd}%</b>平</div><div class="fc-prob ${pred==='loss'?'is-pred':''}"><b>${pl}%</b>${ta.n}胜</div></div>
+          <div class="fc-note">模型推演：<b>${pTxt}</b> · 预测比分 <b>${m.hs}-${m.as}</b> · ${TEAMS[m.w].n}晋级</div>`;
+      }
+      const [g,v,host,h,a,,,$,pw,pd,pl,ts]=nextM;
+      const th=TEAMS[h],ta=TEAMS[a];
+      const pred=pw>=pd&&pw>=pl?'win':(pl>=pd?'loss':'draw');
+      const pTxt=pred==='win'?`${th.n}胜`:pred==='loss'?`${ta.n}胜`:'平局';
+      const weak=th.r<ta.r?h:a;
+      const ur=Math.min((weak===h?pw:pl)+pd,99);
+      const utag=ur>=40?'🔥 高爆冷风险':ur>=25?'⚠️ 冷门可能':'';
+      return `<div class="fc-tag fc-tag--next">下一场预告 · ${g}组${host?'· '+th.n+'主场':''}</div>
+        <div class="fc-teams"><div class="fc-team"><span class="fc-flag">${flagImg(h,56)}</span><div><b>${th.n}</b></div></div><div class="fc-score">VS</div><div class="fc-team"><span class="fc-flag">${flagImg(a,56)}</span><div><b>${ta.n}</b></div></div></div>
+        ${utag?`<div class="fc-hitbar fc-upset">${utag}</div>`:''}
+        <div class="fc-probs"><div class="fc-prob ${pred==='win'?'is-pred':''}"><b>${pw}%</b>${th.n}胜</div><div class="fc-prob ${pred==='draw'?'is-pred':''}"><b>${pd}%</b>平</div><div class="fc-prob ${pred==='loss'?'is-pred':''}"><b>${pl}%</b>${ta.n}胜</div></div>
+        <div class="fc-note">模型预测：<b>${pTxt}</b> · 最可能比分 <b>${ts[0][0]}</b>(${ts[0][1]}%)</div>`;
+    })():'<div class="fc-empty">赛程已结束</div>';
     $('#accuracyBody').innerHTML = `
-      <div class="acc-hero reveal">
-        <div class="acc-rate"><b>${rate}<i>%</i></b><small>命中率</small></div>
-        <div class="acc-detail">
-          <div class="acc-big"><b>${acc.hit}</b><span> / ${acc.total} 场已赛命中</span></div>
-          <div class="acc-types">
-            <span class="acc-type acc-type--w">胜负识别 <b>${acc.wlHit}/${acc.wlTotal}</b> · ${acc.wlTotal?(acc.wlHit/acc.wlTotal*100).toFixed(0):0}%</span>
-            <span class="acc-type acc-type--d">平局 <b>${acc.t.draw.h}/${acc.t.draw.t}</b> · 公认难点</span>
-          </div>
-        </div>
+      <div class="acc-rate-bar reveal">
+        <div class="acc-rate"><b>${rate}<i>%</i></b></div>
+        <div class="acc-rate-sub">模型命中率 · <b>${acc.hit}</b>/${acc.total} 场命中 · 胜负识别 ${acc.wlHit}/${acc.wlTotal} · 平局 ${acc.t.draw.h}/${acc.t.draw.t}</div>
       </div>
-      ${acc.miss.length ? `<div class="acc-miss reveal">
-        <div class="acc-miss__head">预测偏差 · ${acc.miss.length} 场（以平局爆冷为主，足球预测公认难点）</div>
-        <div class="acc-miss__list">${missHtml}</div>
-      </div>` : ''}`;
+      <div class="focus-grid">
+        <div class="focus-card reveal">${lastHtml}</div>
+        <div class="focus-card reveal">${nextHtml}</div>
+      </div>`;
   }
 
   /* ============ 3. 小组赛 ============ */
