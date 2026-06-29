@@ -319,9 +319,9 @@
     return `<div class="fc-card">
       <div class="fc-top"><span class="fc-meta">${meta}</span>${badge}</div>
       <div class="fc-match">
-        <div class="fc-side fc-side--l"><b>${th.n}</b>${host?'<i>主场</i>':''}<span class="fc-flag">${flagImg(h,64)}</span></div>
+        <div class="fc-side fc-side--l"><span class="fc-flag">${flagImg(h,80)}</span><b>${th.n}</b>${host?'<i>主</i>':''}</div>
         <div class="fc-sc">${played?`<b>${hs}</b><i>:</i><b>${as}</b>`:'<small>VS</small>'}</div>
-        <div class="fc-side fc-side--r"><span class="fc-flag">${flagImg(a,64)}</span><b>${ta.n}</b></div>
+        <div class="fc-side fc-side--r"><b>${ta.n}</b><span class="fc-flag">${flagImg(a,80)}</span></div>
       </div>
       ${bar}${barLbl}${upset}${deep}${pills}${actLn}
     </div>`;
