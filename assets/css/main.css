@@ -156,7 +156,6 @@ ul{list-style:none}
 /* ============ SECTION 通用 ============ */
 .section{max-width:var(--maxw);margin:0 auto;padding:96px 28px}
 .section--alt{background:linear-gradient(180deg,transparent,rgba(255,255,255,.012) 30%,transparent)}
-#accuracy{max-width:none}   /* 赛果焦点撑满视口，避免桌面宽屏右侧大块留白 */
 .section__head{margin-bottom:48px;max-width:760px}
 .section__index{font-family:var(--fm);font-size:12px;color:var(--gold);letter-spacing:3px}
 .section__title{font-family:var(--fd);font-size:clamp(30px,4vw,46px);font-weight:700;letter-spacing:-1px;margin:10px 0 14px;line-height:1.05}
@@ -594,6 +593,9 @@ ul{list-style:none}
 @media(max-width:760px){.focus-stage{gap:8px}.focus-nav{width:36px;font-size:22px}}
 .focus-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:22px 24px}
 .fc-card{display:flex;flex-direction:column;gap:14px}
+.fc-body{display:flex;flex-direction:column;gap:14px}
+.fc-left,.fc-right{display:flex;flex-direction:column;gap:12px;min-width:0}
+@media(min-width:780px){.fc-body{display:grid;grid-template-columns:minmax(320px,1fr) minmax(320px,1.05fr);gap:40px;align-items:center}}
 .fc-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .fc-meta{font-size:11px;color:var(--text-mute);letter-spacing:.5px;font-family:var(--fm)}
 .fc-badge{font-size:11px;font-weight:700;padding:3px 11px;border-radius:20px;font-family:var(--fm);white-space:nowrap}

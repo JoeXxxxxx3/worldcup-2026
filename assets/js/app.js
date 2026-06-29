@@ -318,12 +318,19 @@
     const actLn=(played&&!hit)?`<div class="fc-actln">实际：<b>${aTxt} ${hs}-${as}</b></div>`:'';
     return `<div class="fc-card">
       <div class="fc-top"><span class="fc-meta">${meta}</span>${badge}</div>
-      <div class="fc-match">
-        <div class="fc-side fc-side--l"><span class="fc-flag">${flagImg(h,80)}</span><b>${th.n}</b>${host?'<i>主</i>':''}</div>
-        <div class="fc-sc">${played?`<b>${hs}</b><i>:</i><b>${as}</b>`:'<small>VS</small>'}</div>
-        <div class="fc-side fc-side--r"><b>${ta.n}</b><span class="fc-flag">${flagImg(a,80)}</span></div>
+      <div class="fc-body">
+        <div class="fc-left">
+          <div class="fc-match">
+            <div class="fc-side fc-side--l"><span class="fc-flag">${flagImg(h,80)}</span><b>${th.n}</b>${host?'<i>主</i>':''}</div>
+            <div class="fc-sc">${played?`<b>${hs}</b><i>:</i><b>${as}</b>`:'<small>VS</small>'}</div>
+            <div class="fc-side fc-side--r"><b>${ta.n}</b><span class="fc-flag">${flagImg(a,80)}</span></div>
+          </div>
+          ${upset}
+        </div>
+        <div class="fc-right">
+          ${bar}${barLbl}${deep}${pills}${actLn}
+        </div>
       </div>
-      ${bar}${barLbl}${upset}${deep}${pills}${actLn}
     </div>`;
   }
 
