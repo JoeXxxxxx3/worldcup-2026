@@ -9,17 +9,17 @@
       "g": 6
     },
     {
-      "name": "姆巴佩",
-      "en": "Kylian Mbappé",
-      "c": "FRA",
-      "t": "France",
-      "g": 4
-    },
-    {
       "name": "维尼修斯",
       "en": "Vinícius Júnior",
       "c": "BRA",
       "t": "Brazil",
+      "g": 4
+    },
+    {
+      "name": "姆巴佩",
+      "en": "Kylian Mbappé",
+      "c": "FRA",
+      "t": "France",
       "g": 4
     },
     {
@@ -37,38 +37,10 @@
       "g": 4
     },
     {
-      "name": "乔纳森·大卫",
-      "en": "Jonathan David",
-      "c": "CAN",
-      "t": "Canada",
-      "g": 3
-    },
-    {
-      "name": "Yoane Wissa",
-      "en": "Yoane Wissa",
-      "c": "COD",
-      "t": "Congo DR",
-      "g": 3
-    },
-    {
-      "name": "Elijah Just",
-      "en": "Elijah Just",
-      "c": "NZL",
-      "t": "New Zealand",
-      "g": 3
-    },
-    {
-      "name": "凯恩",
-      "en": "Harry Kane",
-      "c": "ENG",
-      "t": "England",
-      "g": 3
-    },
-    {
-      "name": "Ismaïla Sarr",
-      "en": "Ismaïla Sarr",
-      "c": "SEN",
-      "t": "Senegal",
+      "name": "加克波",
+      "en": "Cody Gakpo",
+      "c": "NED",
+      "t": "Netherlands",
       "g": 3
     },
     {
@@ -79,26 +51,61 @@
       "g": 3
     },
     {
+      "name": "哈弗茨",
+      "en": "Kai Havertz",
+      "c": "GER",
+      "t": "Germany",
+      "g": 3
+    },
+    {
+      "name": "乔纳森·大卫",
+      "en": "Jonathan David",
+      "c": "CAN",
+      "t": "Canada",
+      "g": 3
+    },
+    {
       "name": "Matheus Cunha",
       "en": "Matheus Cunha",
       "c": "BRA",
       "t": "Brazil",
       "g": 3
+    },
+    {
+      "name": "Brian Brobbey",
+      "en": "Brian Brobbey",
+      "c": "NED",
+      "t": "Netherlands",
+      "g": 3
+    },
+    {
+      "name": "温达夫",
+      "en": "Deniz Undav",
+      "c": "GER",
+      "t": "Germany",
+      "g": 3
     }
   ],
   "assists": [
-    {
-      "name": "伊萨克",
-      "en": "Alexander Isak",
-      "c": "SWE",
-      "t": "Sweden",
-      "a": 3
-    },
     {
       "name": "吉马良斯",
       "en": "Bruno Guimarães",
       "c": "BRA",
       "t": "Brazil",
+      "a": 4
+    },
+    {
+      "name": "维尔茨",
+      "en": "Florian Wirtz",
+      "c": "GER",
+      "t": "Germany",
+      "a": 3
+    },
+    {
+      "name": "伊萨克",
+      "en": "Alexander Isak",
+      "c": "SWE",
+      "t": "Sweden",
       "a": 3
     },
     {
@@ -109,20 +116,6 @@
       "a": 3
     },
     {
-      "name": "Hannibal Mejbri",
-      "en": "Hannibal Mejbri",
-      "c": "TUN",
-      "t": "Tunisia",
-      "a": 2
-    },
-    {
-      "name": "Viktor Gyökeres",
-      "en": "Viktor Gyökeres",
-      "c": "SWE",
-      "t": "Sweden",
-      "a": 2
-    },
-    {
       "name": "Denzel Dumfries",
       "en": "Denzel Dumfries",
       "c": "NED",
@@ -130,31 +123,10 @@
       "a": 2
     },
     {
-      "name": "Chris Wood",
-      "en": "Chris Wood",
-      "c": "NZL",
-      "t": "New Zealand",
-      "a": 2
-    },
-    {
-      "name": "Julio Enciso",
-      "en": "Julio Enciso",
-      "c": "PAR",
-      "t": "Paraguay",
-      "a": 2
-    },
-    {
-      "name": "姆巴佩",
-      "en": "Kylian Mbappé",
-      "c": "FRA",
-      "t": "France",
-      "a": 2
-    },
-    {
-      "name": "Breel Embolo",
-      "en": "Breel Embolo",
-      "c": "SUI",
-      "t": "Switzerland",
+      "name": "基米希",
+      "en": "Joshua Kimmich",
+      "c": "GER",
+      "t": "Germany",
       "a": 2
     },
     {
@@ -165,10 +137,38 @@
       "a": 2
     },
     {
-      "name": "Roberto Alvarado",
-      "en": "Roberto Alvarado",
-      "c": "MEX",
-      "t": "Mexico",
+      "name": "Julio Enciso",
+      "en": "Julio Enciso",
+      "c": "PAR",
+      "t": "Paraguay",
+      "a": 2
+    },
+    {
+      "name": "Brahim Díaz",
+      "en": "Brahim Díaz",
+      "c": "MAR",
+      "t": "Morocco",
+      "a": 2
+    },
+    {
+      "name": "Crysencio Summerville",
+      "en": "Crysencio Summerville",
+      "c": "NED",
+      "t": "Netherlands",
+      "a": 2
+    },
+    {
+      "name": "温达夫",
+      "en": "Deniz Undav",
+      "c": "GER",
+      "t": "Germany",
+      "a": 2
+    },
+    {
+      "name": "Hannibal Mejbri",
+      "en": "Hannibal Mejbri",
+      "c": "TUN",
+      "t": "Tunisia",
       "a": 2
     }
   ]
