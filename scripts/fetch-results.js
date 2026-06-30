@@ -70,7 +70,8 @@ async function fetchKnockoutReal(){
       const h=code(home.team.abbreviation), a=code(away.team.abbreviation);
       const key=[h,a].sort().join('_');
       if(seen.has(key)) continue; seen.add(key);
-      res.push({h,a,hs:+home.score,as:+away.score,d:d.slice(0,4)+'-'+d.slice(4,6)+'-'+d.slice(6,8)});
+      const winner = home.winner ? 'h' : (away.winner ? 'a' : null);
+      res.push({h,a,hs:+home.score,as:+away.score,d:d.slice(0,4)+'-'+d.slice(4,6)+'-'+d.slice(6,8),winner});
     }
   }
   fs.writeFileSync(KOUT, JSON.stringify(res,null,2)+'\n');
@@ -115,7 +116,8 @@ async function fetchSchedule(){
       const t=ev.date?ev.date.slice(11,16):'';
       const key=[h,a].sort().join('_')+'_'+date;
       if(seen.has(key)) continue; seen.add(key);
-      res.push({h,a,hs:+home.score||0,as:+away.score||0,d:date,t,state,round:roundOf(date,t)});
+      const winner = home.winner ? 'h' : (away.winner ? 'a' : null);
+      res.push({h,a,hs:+home.score||0,as:+away.score||0,d:date,t,state,round:roundOf(date,t),winner});
     }
   }
   res.sort((x,y)=>(x.d+'T'+(x.t||'')).localeCompare(y.d+'T'+(y.t||'')));

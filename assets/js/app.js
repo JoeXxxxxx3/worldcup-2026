@@ -541,8 +541,9 @@
       const pool = koSchedule && koSchedule.length ? koSchedule : knockoutReal;
       const r=pool.find(x=>x.state==='post' && ((x.h===h&&x.a===a)||(x.h===a&&x.a===h)));
       if(!r) return null;
-      const w=r.hs>r.as?h:(r.as>r.hs?a:null);
-      return w?{h,a,hs:r.hs,as:r.as,w,et:0,note:`真实赛果 · ${TEAMS[w].n}晋级`,real:true}:null;
+      let w=r.hs>r.as?r.h:(r.as>r.hs?r.a:null);
+      if(!w && r.winner) w=r.winner==='h'?r.h:r.a;   // 常规平局 → ESPN 点球胜者
+      return w?{h,a,hs:r.hs,as:r.as,w,et:(r.hs===r.as)?1:0,note:`真实赛果 · ${TEAMS[w].n}晋级`,real:true}:null;
     };
     const koPick=(h,a)=>realMatch(h,a)||predictKO(h,a);
     // 32 强对阵：优先 ESPN 真实赛程（schedule.json），无则回退 GROUPS 推演
