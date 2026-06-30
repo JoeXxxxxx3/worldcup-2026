@@ -535,35 +535,45 @@
   let knockoutReal=[];   // 淘汰赛真实赛果（已踢场次覆盖推演）
   /* 完整动态重推演：出线 → 第三名分配 → 32强对阵 → 逐轮胜者（已踢用真实） */
   function buildKnockout(){
-    const codes='ABCDEFGHIJKL'.split('');
-    const W={}; const thirds=[];
-    for(const g of codes){
-      const ms=GROUPS.filter(m=>m[0]===g);
-      const st=calcStandings(ms);
-      if(st.length<3) return null;
-      W[g]=st.slice(0,3).map(x=>x.c);
-      const t=st[2];
-      thirds.push({g,code:t.c,pts:t.pts,gd:t.gd,gf:t.gf});
-    }
-    thirds.sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf);
-    const assign=assignThirds(thirds.slice(0,8));
-    if(!assign) return null;
-    const pick = s => assign[s];
-    const r32def=[
-      [W.A[1],W.B[1]],[W.C[0],W.F[1]],[W.E[0],pick(3)],[W.F[0],W.C[1]],
-      [W.E[1],W.I[1]],[W.I[0],pick(6)],[W.A[0],pick(7)],[W.L[0],pick(8)],
-      [W.D[0],pick(9)],[W.G[0],pick(10)],[W.H[0],W.J[1]],[W.K[1],W.L[1]],
-      [W.B[0],pick(13)],[W.D[1],W.G[1]],[W.J[0],W.H[1]],[W.K[0],pick(16)]
-    ];
+    // 真实赛果查找：基于 koSchedule 已赛场（state=post），覆盖所有轮次
     const realMatch=(h,a)=>{
-      const r=(knockoutReal||[]).find(x=>(x.h===h&&x.a===a)||(x.h===a&&x.a===h));
+      if(!h||!a) return null;
+      const pool = koSchedule && koSchedule.length ? koSchedule : knockoutReal;
+      const r=pool.find(x=>x.state==='post' && ((x.h===h&&x.a===a)||(x.h===a&&x.a===h)));
       if(!r) return null;
       const w=r.hs>r.as?h:(r.as>r.hs?a:null);
       return w?{h,a,hs:r.hs,as:r.as,w,et:0,note:`真实赛果 · ${TEAMS[w].n}晋级`,real:true}:null;
     };
     const koPick=(h,a)=>realMatch(h,a)||predictKO(h,a);
-    const r32=r32def.map(([h,a])=>koPick(h,a)).filter(Boolean);
-    if(r32.length<16) return null;
+    // 32 强对阵：优先 ESPN 真实赛程（schedule.json），无则回退 GROUPS 推演
+    const r32raw = koSchedule && koSchedule.filter(x=>x.round==='32强');
+    let r32;
+    if(r32raw && r32raw.length>=2){
+      r32 = r32raw.map(x=>koPick(x.h,x.a)).filter(Boolean);
+    } else {
+      const codes='ABCDEFGHIJKL'.split('');
+      const W={}; const thirds=[];
+      for(const g of codes){
+        const ms=GROUPS.filter(m=>m[0]===g);
+        const st=calcStandings(ms);
+        if(st.length<3) return null;
+        W[g]=st.slice(0,3).map(x=>x.c);
+        const t=st[2];
+        thirds.push({g,code:t.c,pts:t.pts,gd:t.gd,gf:t.gf});
+      }
+      thirds.sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf);
+      const assign=assignThirds(thirds.slice(0,8));
+      if(!assign) return null;
+      const pick = s => assign[s];
+      const r32def=[
+        [W.A[1],W.B[1]],[W.C[0],W.F[1]],[W.E[0],pick(3)],[W.F[0],W.C[1]],
+        [W.E[1],W.I[1]],[W.I[0],pick(6)],[W.A[0],pick(7)],[W.L[0],pick(8)],
+        [W.D[0],pick(9)],[W.G[0],pick(10)],[W.H[0],W.J[1]],[W.K[1],W.L[1]],
+        [W.B[0],pick(13)],[W.D[1],W.G[1]],[W.J[0],W.H[1]],[W.K[0],pick(16)]
+      ];
+      r32=r32def.map(([h,a])=>koPick(h,a)).filter(Boolean);
+    }
+    if(!r32 || r32.length<2) return null;
     const mk=arr=>{const r=[];for(let i=0;i<arr.length;i+=2){
       if(!arr[i]||!arr[i+1])continue;
       const m1=arr[i], m2=arr[i+1];

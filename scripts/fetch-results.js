@@ -86,9 +86,10 @@ async function fetchSchedule(){
   for(let d=28;d<=30;d++) DAYS.push('202606'+String(d).padStart(2,'0'));
   for(let d=1;d<=19;d++) DAYS.push('202607'+String(d).padStart(2,'0'));
   // 按日期推断轮次（与 FIFA 赛程一致）
-  const roundOf = date => {
-    const m=+date.slice(5,7), day=+date.slice(8,10);
+  const roundOf = (date, t='') => {
+    const m=+date.slice(5,7), day=+date.slice(8,10), hh=t?+t.slice(0,2):24;
     if(m===6&&day>=28 || m===7&&day<=3) return '32强';
+    if(m===7&&day===4 && hh<12) return '32强';   // 7-4 凌晨场（COL vs GHA 01:30）实为 32 强末场
     if(m===7&&day>=4&&day<=7)  return '16强';
     if(m===7&&day>=8&&day<=11) return '1/4决赛';
     if(m===7&&day>=14&&day<=15)return '半决赛';
@@ -114,7 +115,7 @@ async function fetchSchedule(){
       const t=ev.date?ev.date.slice(11,16):'';
       const key=[h,a].sort().join('_')+'_'+date;
       if(seen.has(key)) continue; seen.add(key);
-      res.push({h,a,hs:+home.score||0,as:+away.score||0,d:date,t,state,round:roundOf(date)});
+      res.push({h,a,hs:+home.score||0,as:+away.score||0,d:date,t,state,round:roundOf(date,t)});
     }
   }
   res.sort((x,y)=>(x.d+'T'+(x.t||'')).localeCompare(y.d+'T'+(y.t||'')));
