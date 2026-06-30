@@ -57,11 +57,11 @@
   {
     "h": "FRA",
     "a": "SWE",
-    "hs": 0,
+    "hs": 3,
     "as": 0,
     "d": "2026-06-30",
     "t": "21:00",
-    "state": "pre",
+    "state": "in",
     "round": "32强",
     "winner": null
   },
