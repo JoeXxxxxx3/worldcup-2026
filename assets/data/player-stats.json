@@ -2,11 +2,25 @@
   "updated": "2026-07-01",
   "scorers": [
     {
+      "name": "姆巴佩",
+      "en": "Kylian Mbappé",
+      "c": "FRA",
+      "t": "France",
+      "g": 6
+    },
+    {
       "name": "梅西",
       "en": "Lionel Messi",
       "c": "ARG",
       "t": "Argentina",
       "g": 6
+    },
+    {
+      "name": "哈兰德",
+      "en": "Erling Haaland",
+      "c": "NOR",
+      "t": "Norway",
+      "g": 5
     },
     {
       "name": "维尼修斯",
@@ -16,24 +30,10 @@
       "g": 4
     },
     {
-      "name": "姆巴佩",
-      "en": "Kylian Mbappé",
-      "c": "FRA",
-      "t": "France",
-      "g": 4
-    },
-    {
       "name": "登贝莱",
       "en": "Ousmane Dembélé",
       "c": "FRA",
       "t": "France",
-      "g": 4
-    },
-    {
-      "name": "哈兰德",
-      "en": "Erling Haaland",
-      "c": "NOR",
-      "t": "Norway",
       "g": 4
     },
     {
@@ -58,6 +58,13 @@
       "g": 3
     },
     {
+      "name": "Julián Quiñones",
+      "en": "Julián Quiñones",
+      "c": "MEX",
+      "t": "Mexico",
+      "g": 3
+    },
+    {
       "name": "乔纳森·大卫",
       "en": "Jonathan David",
       "c": "CAN",
@@ -77,16 +84,16 @@
       "c": "NED",
       "t": "Netherlands",
       "g": 3
-    },
-    {
-      "name": "温达夫",
-      "en": "Deniz Undav",
-      "c": "GER",
-      "t": "Germany",
-      "g": 3
     }
   ],
   "assists": [
+    {
+      "name": "奥利塞",
+      "en": "Michael Olise",
+      "c": "FRA",
+      "t": "France",
+      "a": 5
+    },
     {
       "name": "吉马良斯",
       "en": "Bruno Guimarães",
@@ -109,10 +116,17 @@
       "a": 3
     },
     {
-      "name": "奥利塞",
-      "en": "Michael Olise",
-      "c": "FRA",
-      "t": "France",
+      "name": "Roberto Alvarado",
+      "en": "Roberto Alvarado",
+      "c": "MEX",
+      "t": "Mexico",
+      "a": 3
+    },
+    {
+      "name": "Martin Ødegaard",
+      "en": "Martin Ødegaard",
+      "c": "NOR",
+      "t": "Norway",
       "a": 3
     },
     {
@@ -123,10 +137,24 @@
       "a": 2
     },
     {
+      "name": "Viktor Gyökeres",
+      "en": "Viktor Gyökeres",
+      "c": "SWE",
+      "t": "Sweden",
+      "a": 2
+    },
+    {
       "name": "基米希",
       "en": "Joshua Kimmich",
       "c": "GER",
       "t": "Germany",
+      "a": 2
+    },
+    {
+      "name": "姆巴佩",
+      "en": "Kylian Mbappé",
+      "c": "FRA",
+      "t": "France",
       "a": 2
     },
     {
@@ -141,34 +169,6 @@
       "en": "Julio Enciso",
       "c": "PAR",
       "t": "Paraguay",
-      "a": 2
-    },
-    {
-      "name": "Brahim Díaz",
-      "en": "Brahim Díaz",
-      "c": "MAR",
-      "t": "Morocco",
-      "a": 2
-    },
-    {
-      "name": "Crysencio Summerville",
-      "en": "Crysencio Summerville",
-      "c": "NED",
-      "t": "Netherlands",
-      "a": 2
-    },
-    {
-      "name": "温达夫",
-      "en": "Deniz Undav",
-      "c": "GER",
-      "t": "Germany",
-      "a": 2
-    },
-    {
-      "name": "Hannibal Mejbri",
-      "en": "Hannibal Mejbri",
-      "c": "TUN",
-      "t": "Tunisia",
       "a": 2
     }
   ]
