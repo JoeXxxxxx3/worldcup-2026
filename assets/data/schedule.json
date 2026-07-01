@@ -61,20 +61,20 @@
     "as": 0,
     "d": "2026-06-30",
     "t": "21:00",
-    "state": "in",
+    "state": "post",
     "round": "32强",
-    "winner": null
+    "winner": "h"
   },
   {
     "h": "MEX",
     "a": "ECU",
-    "hs": 0,
+    "hs": 2,
     "as": 0,
     "d": "2026-07-01",
-    "t": "01:00",
-    "state": "pre",
+    "t": "02:00",
+    "state": "post",
     "round": "32强",
-    "winner": null
+    "winner": "h"
   },
   {
     "h": "ENG",
@@ -182,6 +182,17 @@
     "as": 0,
     "d": "2026-07-04",
     "t": "17:00",
+    "state": "pre",
+    "round": "16强",
+    "winner": null
+  },
+  {
+    "h": "PAR",
+    "a": "FRA",
+    "hs": 0,
+    "as": 0,
+    "d": "2026-07-04",
+    "t": "21:00",
     "state": "pre",
     "round": "16强",
     "winner": null
