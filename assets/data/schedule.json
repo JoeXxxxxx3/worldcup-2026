@@ -79,13 +79,13 @@
   {
     "h": "ENG",
     "a": "COD",
-    "hs": 0,
+    "hs": 2,
     "as": 1,
     "d": "2026-07-01",
     "t": "16:00",
-    "state": "in",
+    "state": "post",
     "round": "32强",
-    "winner": null
+    "winner": "h"
   },
   {
     "h": "BEL",
@@ -94,7 +94,7 @@
     "as": 0,
     "d": "2026-07-01",
     "t": "20:00",
-    "state": "pre",
+    "state": "in",
     "round": "32强",
     "winner": null
   },
@@ -204,6 +204,17 @@
     "as": 0,
     "d": "2026-07-05",
     "t": "20:00",
+    "state": "pre",
+    "round": "16强",
+    "winner": null
+  },
+  {
+    "h": "MEX",
+    "a": "ENG",
+    "hs": 0,
+    "as": 0,
+    "d": "2026-07-06",
+    "t": "00:00",
     "state": "pre",
     "round": "16强",
     "winner": null
