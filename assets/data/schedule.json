@@ -112,13 +112,13 @@
   {
     "h": "ESP",
     "a": "AUT",
-    "hs": 1,
+    "hs": 3,
     "as": 0,
     "d": "2026-07-02",
     "t": "19:00",
-    "state": "in",
+    "state": "post",
     "round": "32强",
-    "winner": null
+    "winner": "h"
   },
   {
     "h": "POR",
