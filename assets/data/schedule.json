@@ -90,24 +90,24 @@
   {
     "h": "BEL",
     "a": "SEN",
-    "hs": 2,
+    "hs": 3,
     "as": 2,
     "d": "2026-07-01",
     "t": "20:00",
-    "state": "in",
+    "state": "post",
     "round": "32强",
-    "winner": null
+    "winner": "h"
   },
   {
     "h": "USA",
     "a": "BIH",
-    "hs": 0,
+    "hs": 2,
     "as": 0,
     "d": "2026-07-02",
     "t": "00:00",
-    "state": "pre",
+    "state": "post",
     "round": "32强",
-    "winner": null
+    "winner": "h"
   },
   {
     "h": "ESP",
@@ -214,6 +214,17 @@
     "hs": 0,
     "as": 0,
     "d": "2026-07-06",
+    "t": "00:00",
+    "state": "pre",
+    "round": "16强",
+    "winner": null
+  },
+  {
+    "h": "USA",
+    "a": "BEL",
+    "hs": 0,
+    "as": 0,
+    "d": "2026-07-07",
     "t": "00:00",
     "state": "pre",
     "round": "16强",
