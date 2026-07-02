@@ -16,11 +16,25 @@
       "g": 6
     },
     {
+      "name": "凯恩",
+      "en": "Harry Kane",
+      "c": "ENG",
+      "t": "England",
+      "g": 5
+    },
+    {
       "name": "哈兰德",
       "en": "Erling Haaland",
       "c": "NOR",
       "t": "Norway",
       "g": 5
+    },
+    {
+      "name": "Ismaïla Sarr",
+      "en": "Ismaïla Sarr",
+      "c": "SEN",
+      "t": "Senegal",
+      "g": 4
     },
     {
       "name": "维尼修斯",
@@ -51,6 +65,13 @@
       "g": 3
     },
     {
+      "name": "Yoane Wissa",
+      "en": "Yoane Wissa",
+      "c": "COD",
+      "t": "Congo DR",
+      "g": 3
+    },
+    {
       "name": "哈弗茨",
       "en": "Kai Havertz",
       "c": "GER",
@@ -62,27 +83,6 @@
       "en": "Julián Quiñones",
       "c": "MEX",
       "t": "Mexico",
-      "g": 3
-    },
-    {
-      "name": "乔纳森·大卫",
-      "en": "Jonathan David",
-      "c": "CAN",
-      "t": "Canada",
-      "g": 3
-    },
-    {
-      "name": "Matheus Cunha",
-      "en": "Matheus Cunha",
-      "c": "BRA",
-      "t": "Brazil",
-      "g": 3
-    },
-    {
-      "name": "Brian Brobbey",
-      "en": "Brian Brobbey",
-      "c": "NED",
-      "t": "Netherlands",
       "g": 3
     }
   ],
