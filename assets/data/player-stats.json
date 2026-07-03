@@ -44,6 +44,13 @@
       "g": 4
     },
     {
+      "name": "Mikel Oyarzabal",
+      "en": "Mikel Oyarzabal",
+      "c": "ESP",
+      "t": "Spain",
+      "g": 4
+    },
+    {
       "name": "登贝莱",
       "en": "Ousmane Dembélé",
       "c": "FRA",
@@ -76,13 +83,6 @@
       "en": "Kai Havertz",
       "c": "GER",
       "t": "Germany",
-      "g": 3
-    },
-    {
-      "name": "Julián Quiñones",
-      "en": "Julián Quiñones",
-      "c": "MEX",
-      "t": "Mexico",
       "g": 3
     }
   ],
@@ -137,6 +137,13 @@
       "a": 2
     },
     {
+      "name": "Marc Cucurella",
+      "en": "Marc Cucurella",
+      "c": "ESP",
+      "t": "Spain",
+      "a": 2
+    },
+    {
       "name": "Viktor Gyökeres",
       "en": "Viktor Gyökeres",
       "c": "SWE",
@@ -162,13 +169,6 @@
       "en": "Ryan Gravenberch",
       "c": "NED",
       "t": "Netherlands",
-      "a": 2
-    },
-    {
-      "name": "Julio Enciso",
-      "en": "Julio Enciso",
-      "c": "PAR",
-      "t": "Paraguay",
       "a": 2
     }
   ]

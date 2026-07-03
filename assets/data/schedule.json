@@ -134,13 +134,13 @@
   {
     "h": "SUI",
     "a": "ALG",
-    "hs": 1,
+    "hs": 2,
     "as": 0,
     "d": "2026-07-03",
     "t": "03:00",
-    "state": "in",
+    "state": "post",
     "round": "32强",
-    "winner": null
+    "winner": "h"
   },
   {
     "h": "AUS",
