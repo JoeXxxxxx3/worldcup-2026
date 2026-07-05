@@ -2,18 +2,18 @@
   "updated": "2026-07-05",
   "scorers": [
     {
+      "name": "姆巴佩",
+      "en": "Kylian Mbappé",
+      "c": "FRA",
+      "t": "France",
+      "g": 7
+    },
+    {
       "name": "梅西",
       "en": "Lionel Messi",
       "c": "ARG",
       "t": "Argentina",
       "g": 7
-    },
-    {
-      "name": "姆巴佩",
-      "en": "Kylian Mbappé",
-      "c": "FRA",
-      "t": "France",
-      "g": 6
     },
     {
       "name": "凯恩",
@@ -28,6 +28,13 @@
       "c": "NOR",
       "t": "Norway",
       "g": 5
+    },
+    {
+      "name": "登贝莱",
+      "en": "Ousmane Dembélé",
+      "c": "FRA",
+      "t": "France",
+      "g": 4
     },
     {
       "name": "Ismaïla Sarr",
@@ -51,17 +58,10 @@
       "g": 4
     },
     {
-      "name": "登贝莱",
-      "en": "Ousmane Dembélé",
-      "c": "FRA",
-      "t": "France",
-      "g": 4
-    },
-    {
-      "name": "加克波",
-      "en": "Cody Gakpo",
-      "c": "NED",
-      "t": "Netherlands",
+      "name": "乔纳森·大卫",
+      "en": "Jonathan David",
+      "c": "CAN",
+      "t": "Canada",
       "g": 3
     },
     {
@@ -72,17 +72,17 @@
       "g": 3
     },
     {
+      "name": "加克波",
+      "en": "Cody Gakpo",
+      "c": "NED",
+      "t": "Netherlands",
+      "g": 3
+    },
+    {
       "name": "Yoane Wissa",
       "en": "Yoane Wissa",
       "c": "COD",
       "t": "Congo DR",
-      "g": 3
-    },
-    {
-      "name": "哈弗茨",
-      "en": "Kai Havertz",
-      "c": "GER",
-      "t": "Germany",
       "g": 3
     }
   ],
@@ -93,6 +93,13 @@
       "c": "FRA",
       "t": "France",
       "a": 5
+    },
+    {
+      "name": "Brahim Díaz",
+      "en": "Brahim Díaz",
+      "c": "MAR",
+      "t": "Morocco",
+      "a": 4
     },
     {
       "name": "吉马良斯",
@@ -130,31 +137,10 @@
       "a": 3
     },
     {
-      "name": "Denzel Dumfries",
-      "en": "Denzel Dumfries",
-      "c": "NED",
-      "t": "Netherlands",
-      "a": 2
-    },
-    {
-      "name": "Marc Cucurella",
-      "en": "Marc Cucurella",
-      "c": "ESP",
-      "t": "Spain",
-      "a": 2
-    },
-    {
-      "name": "Viktor Gyökeres",
-      "en": "Viktor Gyökeres",
-      "c": "SWE",
-      "t": "Sweden",
-      "a": 2
-    },
-    {
-      "name": "基米希",
-      "en": "Joshua Kimmich",
-      "c": "GER",
-      "t": "Germany",
+      "name": "阿什拉夫",
+      "en": "Achraf Hakimi",
+      "c": "MAR",
+      "t": "Morocco",
       "a": 2
     },
     {
@@ -165,8 +151,22 @@
       "a": 2
     },
     {
-      "name": "Ryan Gravenberch",
-      "en": "Ryan Gravenberch",
+      "name": "Julio Enciso",
+      "en": "Julio Enciso",
+      "c": "PAR",
+      "t": "Paraguay",
+      "a": 2
+    },
+    {
+      "name": "登贝莱",
+      "en": "Ousmane Dembélé",
+      "c": "FRA",
+      "t": "France",
+      "a": 2
+    },
+    {
+      "name": "Denzel Dumfries",
+      "en": "Denzel Dumfries",
       "c": "NED",
       "t": "Netherlands",
       "a": 2
