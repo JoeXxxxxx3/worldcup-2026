@@ -39,6 +39,27 @@
   let dynamicKO = null;
   const getChampion = ()=> (dynamicKO && dynamicKO.final[0] && dynamicKO.final[0].w) || CHAMP;
   const onChampPath = (h,a)=> { const c=getChampion(); return h===c||a===c; };
+  /* 从 dynamicKO 提取冠军的真实/推演路径（各轮对手 + 比分），取代硬编码 CHAMPION_PATH */
+  function buildChampionPath(c){
+    if(!c || !dynamicKO) return [];
+    const rounds=[['32强','r32'],['16强','r16'],['8强','qf'],['半决赛','sf']];
+    const path=[];
+    for(const [round,key] of rounds){
+      const m=(dynamicKO[key]||[]).find(x=>x&&(x.h===c||x.a===c));
+      if(m){
+        const opp=m.h===c?m.a:m.h;
+        const cg=m.h===c?m.hs:m.as, og=m.h===c?m.as:m.hs;
+        path.push({round,opp:TEAMS[opp].n,code:opp,score:`${cg}-${og}`,real:!!m.real});
+      }
+    }
+    const f=dynamicKO.final&&dynamicKO.final[0];
+    if(f&&(f.h===c||f.a===c)){
+      const opp=f.h===c?f.a:f.h;
+      const cg=f.h===c?f.hs:f.as, og=f.h===c?f.as:f.hs;
+      path.push({round:'决赛',opp:TEAMS[opp].n,code:opp,score:`${cg}-${og}`,real:!!f.real});
+    }
+    return path;
+  }
 
   /* ============ 1. 冠军卡 & 顶部数据 ============ */
   function renderHero(){
@@ -46,7 +67,8 @@
     $('#champFlag').src = flagUrl(CHAMP,160);
     $('#champName').textContent = c.n;
     $('#champRating').innerHTML = `实力分 <b>${c.r.toFixed(1)}</b> ${deltaStr(CHAMP)} · 夺冠概率 <b>${c.oDyn}%</b>`;
-    $('#champPath').textContent = CHAMPION_PATH.map(p=>`${p.round} ${p.score}`).join('  ›  ');
+    const cpath = buildChampionPath(getChampion());
+    $('#champPath').textContent = (cpath.length?cpath:CHAMPION_PATH).map(p=>`${p.round} ${p.score}`).join('  ›  ');
 
     $('#champVs').innerHTML = `
       <div class="vs-head">为何不是概率最高的西班牙？</div>
@@ -722,12 +744,14 @@
 
   /* ============ 5. 冠军之路时间线 ============ */
   function renderPath(){
-    $('#pathTimeline').innerHTML = CHAMPION_PATH.map((p,i)=>`
+    const path = buildChampionPath(getChampion());
+    const data = path.length ? path : CHAMPION_PATH;
+    $('#pathTimeline').innerHTML = data.map((p,i)=>`
       <div class="path-step reveal">
         <div class="path-step__dot">${i+1}</div>
         <div class="path-step__body">
           <div class="path-step__flag">${flagImg(p.code,80)}</div>
-          <div class="path-step__opp">${p.round} vs ${p.opp}<small>${p.star}</small></div>
+          <div class="path-step__opp">${p.round} vs ${p.opp}<small>${p.real?'真实赛果':'模型推演'}</small></div>
           <div class="path-step__score">${p.score}</div>
         </div>
       </div>`).join('');
