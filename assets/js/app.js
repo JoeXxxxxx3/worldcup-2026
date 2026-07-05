@@ -575,17 +575,33 @@
       r32=r32def.map(([h,a])=>koPick(h,a)).filter(Boolean);
     }
     if(!r32 || r32.length<2) return null;
-    const mk=arr=>{const r=[];for(let i=0;i<arr.length;i+=2){
-      if(!arr[i]||!arr[i+1])continue;
-      const m1=arr[i], m2=arr[i+1];
-      const real=realMatch(m1.w,m2.w);
-      if(real){r.push(real);continue;}
-      const m=predictKO(m1.w,m2.w);
-      if(!m1.real) m.tbdH=[m1.h,m1.a];   // h 方来自未踢上轮 → 待定候选
-      if(!m2.real) m.tbdA=[m2.h,m2.a];
-      r.push(m);
-    }return r;};
-    const r16=mk(r32), qf=mk(r16), sf=mk(qf);
+    // 通用配对：按 pairings 索引配对（默认相邻 [0,1][2,3]…），覆盖真实赛果
+    const mk=(arr,pairings)=>{
+      const ps = pairings || arr.map((_,i)=> i%2===0?[i,i+1]:null).filter(Boolean);
+      const r=[];
+      ps.forEach(([i,j])=>{
+        const m1=arr[i], m2=arr[j];
+        if(!m1||!m2) return;
+        const real=realMatch(m1.w,m2.w);
+        if(real){r.push(real);return;}
+        const m=predictKO(m1.w,m2.w);
+        if(!m1.real) m.tbdH=[m1.h,m1.a];
+        if(!m2.real) m.tbdA=[m2.h,m2.a];
+        r.push(m);
+      });
+      return r;
+    };
+    // 16 强：优先 ESPN 真实赛程（schedule round='16强'），否则回退 R32 相邻配对
+    const r16raw = koSchedule && koSchedule.filter(x=>x.round==='16强');
+    let r16;
+    if(r16raw && r16raw.length>=8){
+      r16 = r16raw.map(x=>koPick(x.h,x.a)).filter(Boolean);
+    } else {
+      r16 = mk(r32);
+    }
+    // 8 强：FIFA bracket 交叉配对 QF1=[0,1] QF2=[4,5] QF3=[2,3] QF4=[6,7]
+    const qf = mk(r16, [[0,1],[4,5],[2,3],[6,7]]);
+    const sf = mk(qf);   // 半决赛：相邻
     if(sf.length<2) return null;
     const final=koPick(sf[0].w,sf[1].w);
     const l0=sf[0].h===sf[0].w?sf[0].a:sf[0].h;
