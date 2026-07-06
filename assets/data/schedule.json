@@ -223,12 +223,12 @@
     "h": "POR",
     "a": "ESP",
     "hs": 0,
-    "as": 0,
+    "as": 1,
     "d": "2026-07-06",
     "t": "19:00",
-    "state": "in",
+    "state": "post",
     "round": "16强",
-    "winner": null
+    "winner": "a"
   },
   {
     "h": "USA",
