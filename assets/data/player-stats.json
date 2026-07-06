@@ -9,6 +9,13 @@
       "g": 7
     },
     {
+      "name": "哈兰德",
+      "en": "Erling Haaland",
+      "c": "NOR",
+      "t": "Norway",
+      "g": 7
+    },
+    {
       "name": "梅西",
       "en": "Lionel Messi",
       "c": "ARG",
@@ -20,14 +27,28 @@
       "en": "Harry Kane",
       "c": "ENG",
       "t": "England",
-      "g": 5
+      "g": 6
     },
     {
-      "name": "哈兰德",
-      "en": "Erling Haaland",
-      "c": "NOR",
-      "t": "Norway",
-      "g": 5
+      "name": "维尼修斯",
+      "en": "Vinícius Júnior",
+      "c": "BRA",
+      "t": "Brazil",
+      "g": 4
+    },
+    {
+      "name": "Julián Quiñones",
+      "en": "Julián Quiñones",
+      "c": "MEX",
+      "t": "Mexico",
+      "g": 4
+    },
+    {
+      "name": "贝林厄姆",
+      "en": "Jude Bellingham",
+      "c": "ENG",
+      "t": "England",
+      "g": 4
     },
     {
       "name": "登贝莱",
@@ -41,13 +62,6 @@
       "en": "Ismaïla Sarr",
       "c": "SEN",
       "t": "Senegal",
-      "g": 4
-    },
-    {
-      "name": "维尼修斯",
-      "en": "Vinícius Júnior",
-      "c": "BRA",
-      "t": "Brazil",
       "g": 4
     },
     {
@@ -70,20 +84,6 @@
       "c": "MAR",
       "t": "Morocco",
       "g": 3
-    },
-    {
-      "name": "加克波",
-      "en": "Cody Gakpo",
-      "c": "NED",
-      "t": "Netherlands",
-      "g": 3
-    },
-    {
-      "name": "Yoane Wissa",
-      "en": "Yoane Wissa",
-      "c": "COD",
-      "t": "Congo DR",
-      "g": 3
     }
   ],
   "assists": [
@@ -95,6 +95,13 @@
       "a": 5
     },
     {
+      "name": "吉马良斯",
+      "en": "Bruno Guimarães",
+      "c": "BRA",
+      "t": "Brazil",
+      "a": 4
+    },
+    {
       "name": "Brahim Díaz",
       "en": "Brahim Díaz",
       "c": "MAR",
@@ -102,11 +109,25 @@
       "a": 4
     },
     {
-      "name": "吉马良斯",
-      "en": "Bruno Guimarães",
-      "c": "BRA",
-      "t": "Brazil",
-      "a": 4
+      "name": "Roberto Alvarado",
+      "en": "Roberto Alvarado",
+      "c": "MEX",
+      "t": "Mexico",
+      "a": 3
+    },
+    {
+      "name": "萨卡",
+      "en": "Bukayo Saka",
+      "c": "ENG",
+      "t": "England",
+      "a": 3
+    },
+    {
+      "name": "Andreas Schjelderup",
+      "en": "Andreas Schjelderup",
+      "c": "NOR",
+      "t": "Norway",
+      "a": 3
     },
     {
       "name": "维尔茨",
@@ -120,13 +141,6 @@
       "en": "Alexander Isak",
       "c": "SWE",
       "t": "Sweden",
-      "a": 3
-    },
-    {
-      "name": "Roberto Alvarado",
-      "en": "Roberto Alvarado",
-      "c": "MEX",
-      "t": "Mexico",
       "a": 3
     },
     {
@@ -155,20 +169,6 @@
       "en": "Julio Enciso",
       "c": "PAR",
       "t": "Paraguay",
-      "a": 2
-    },
-    {
-      "name": "登贝莱",
-      "en": "Ousmane Dembélé",
-      "c": "FRA",
-      "t": "France",
-      "a": 2
-    },
-    {
-      "name": "Denzel Dumfries",
-      "en": "Denzel Dumfries",
-      "c": "NED",
-      "t": "Netherlands",
       "a": 2
     }
   ]
