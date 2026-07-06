@@ -211,13 +211,13 @@
   {
     "h": "MEX",
     "a": "ENG",
-    "hs": 0,
-    "as": 0,
+    "hs": 2,
+    "as": 3,
     "d": "2026-07-06",
-    "t": "00:00",
-    "state": "pre",
+    "t": "01:00",
+    "state": "post",
     "round": "16强",
-    "winner": null
+    "winner": "a"
   },
   {
     "h": "POR",
@@ -270,6 +270,17 @@
     "as": 0,
     "d": "2026-07-09",
     "t": "20:00",
+    "state": "pre",
+    "round": "1/4决赛",
+    "winner": null
+  },
+  {
+    "h": "NOR",
+    "a": "ENG",
+    "hs": 0,
+    "as": 0,
+    "d": "2026-07-11",
+    "t": "21:00",
     "state": "pre",
     "round": "1/4决赛",
     "winner": null
