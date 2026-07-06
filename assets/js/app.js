@@ -107,21 +107,25 @@
       .map(([c,t])=>({c,...t}))
       .filter(t=>t.oDyn>=1.0)
       .sort((a,b)=>b.oDyn-a.oDyn);
-    const max = ranked[0].oDyn;
+    // 已淘汰队概率归零，存活队按原比例重新归一化（反映淘汰后形势），再重排（淘汰队沉底）
     const elim = getEliminated();
-    $('#powerList').innerHTML = ranked.map((t,i)=>{
+    const aliveSum = ranked.filter(t=>!elim.has(t.c)).reduce((s,t)=>s+t.oDyn,0) || 1;
+    const adj = ranked.map(t=>({...t, oDynAdj: elim.has(t.c)?0:+(t.oDyn/aliveSum*100).toFixed(1)}));
+    const sorted = adj.slice().sort((a,b)=>b.oDynAdj-a.oDynAdj);
+    const max = sorted[0].oDynAdj || 1;
+    $('#powerList').innerHTML = sorted.map((t,i)=>{
       const out = elim.has(t.c);
       return `
-      <div class="power-row reveal ${i<3?'is-top':''} ${out?'is-out':''}" data-team="${t.c}" role="button" tabindex="0" aria-label="${t.n}实力档案">
+      <div class="power-row reveal ${i<3 && !out?'is-top':''} ${out?'is-out':''}" data-team="${t.c}" role="button" tabindex="0" aria-label="${t.n}实力档案">
         <div class="power-rank">${String(i+1).padStart(2,'0')}</div>
         <div class="power-main">
           ${flagImg(t.c,80,'power-flag')}
           <div style="flex:1;min-width:0">
             <div class="power-name">${t.n}${out?'<i class="pw-out">已淘汰</i>':''}<small>${t.g}组 · ${t.r.toFixed(1)} ${deltaStr(t.c)}</small></div>
-            <div class="power-bar"><div class="power-bar__fill" data-pct="${(t.oDyn/max*100).toFixed(1)}"></div></div>
+            <div class="power-bar"><div class="power-bar__fill" data-pct="${(t.oDynAdj/max*100).toFixed(1)}"></div></div>
           </div>
         </div>
-        <div class="power-pct">${out?'—':t.oDyn.toFixed(1)+'%'}</div>
+        <div class="power-pct">${out?'—':t.oDynAdj+'%'}</div>
       </div>
       <div class="power-detail" data-for="${t.c}" hidden></div>`;
     }).join('');
