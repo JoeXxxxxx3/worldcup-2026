@@ -60,6 +60,15 @@
     }
     return path;
   }
+  /* 已淘汰队：淘汰赛已赛场次的败者（用于夺冠概率榜标注） */
+  function getEliminated(){
+    const elim=new Set();
+    if(!dynamicKO) return elim;
+    [dynamicKO.r32,dynamicKO.r16,dynamicKO.qf,dynamicKO.sf].forEach(arr=>(arr||[]).forEach(m=>{
+      if(m && m.real){ elim.add(m.w===m.h ? m.a : m.h); }
+    }));
+    return elim;
+  }
 
   /* ============ 1. 冠军卡 & 顶部数据 ============ */
   function renderHero(){
@@ -99,19 +108,23 @@
       .filter(t=>t.oDyn>=1.0)
       .sort((a,b)=>b.oDyn-a.oDyn);
     const max = ranked[0].oDyn;
-    $('#powerList').innerHTML = ranked.map((t,i)=>`
-      <div class="power-row reveal ${i<3?'is-top':''}" data-team="${t.c}" role="button" tabindex="0" aria-label="${t.n}实力档案">
+    const elim = getEliminated();
+    $('#powerList').innerHTML = ranked.map((t,i)=>{
+      const out = elim.has(t.c);
+      return `
+      <div class="power-row reveal ${i<3?'is-top':''} ${out?'is-out':''}" data-team="${t.c}" role="button" tabindex="0" aria-label="${t.n}实力档案">
         <div class="power-rank">${String(i+1).padStart(2,'0')}</div>
         <div class="power-main">
           ${flagImg(t.c,80,'power-flag')}
           <div style="flex:1;min-width:0">
-            <div class="power-name">${t.n}<small>${t.g}组 · ${t.r.toFixed(1)} ${deltaStr(t.c)}</small></div>
+            <div class="power-name">${t.n}${out?'<i class="pw-out">已淘汰</i>':''}<small>${t.g}组 · ${t.r.toFixed(1)} ${deltaStr(t.c)}</small></div>
             <div class="power-bar"><div class="power-bar__fill" data-pct="${(t.oDyn/max*100).toFixed(1)}"></div></div>
           </div>
         </div>
-        <div class="power-pct">${t.oDyn.toFixed(1)}%</div>
+        <div class="power-pct">${out?'—':t.oDyn.toFixed(1)+'%'}</div>
       </div>
-      <div class="power-detail" data-for="${t.c}" hidden></div>`).join('');
+      <div class="power-detail" data-for="${t.c}" hidden></div>`;
+    }).join('');
     $$('#powerList .power-row').forEach(r=>{
       r.addEventListener('click',()=>toggleTeam(r.dataset.team,r));
       r.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleTeam(r.dataset.team,r);}});

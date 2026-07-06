@@ -182,6 +182,9 @@ ul{list-style:none}
 .power-flag img{width:100%;height:100%;object-fit:cover}
 .power-name{font-weight:600;font-size:15px}
 .power-name small{color:var(--text-mute);font-weight:400;font-size:11px;margin-left:8px;font-family:var(--fm)}
+.power-name .pw-out{font-style:normal;font-size:10px;color:var(--loss);background:rgba(248,113,113,.16);padding:2px 7px;border-radius:8px;margin-left:8px;font-family:var(--fm);font-weight:700;vertical-align:1px}
+.power-row.is-out{opacity:.5}
+.power-row.is-out:hover{opacity:.85}
 .delta{font-family:var(--fm);font-size:10px;font-weight:700;margin-left:3px;vertical-align:1px}
 .delta.up{color:var(--win)} .delta.down{color:var(--loss)}
 .power-bar{height:7px;background:var(--surface-3);border-radius:4px;overflow:hidden;margin-top:6px}
