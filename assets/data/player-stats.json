@@ -51,6 +51,13 @@
       "g": 4
     },
     {
+      "name": "Mikel Oyarzabal",
+      "en": "Mikel Oyarzabal",
+      "c": "ESP",
+      "t": "Spain",
+      "g": 4
+    },
+    {
       "name": "登贝莱",
       "en": "Ousmane Dembélé",
       "c": "FRA",
@@ -65,24 +72,17 @@
       "g": 4
     },
     {
-      "name": "Mikel Oyarzabal",
-      "en": "Mikel Oyarzabal",
-      "c": "ESP",
-      "t": "Spain",
-      "g": 4
+      "name": "C罗",
+      "en": "Cristiano Ronaldo",
+      "c": "POR",
+      "t": "Portugal",
+      "g": 3
     },
     {
       "name": "乔纳森·大卫",
       "en": "Jonathan David",
       "c": "CAN",
       "t": "Canada",
-      "g": 3
-    },
-    {
-      "name": "赛巴里",
-      "en": "Ismael Saibari",
-      "c": "MAR",
-      "t": "Morocco",
       "g": 3
     }
   ],
@@ -158,17 +158,17 @@
       "a": 2
     },
     {
-      "name": "姆巴佩",
-      "en": "Kylian Mbappé",
-      "c": "FRA",
-      "t": "France",
+      "name": "Marc Cucurella",
+      "en": "Marc Cucurella",
+      "c": "ESP",
+      "t": "Spain",
       "a": 2
     },
     {
-      "name": "Julio Enciso",
-      "en": "Julio Enciso",
-      "c": "PAR",
-      "t": "Paraguay",
+      "name": "Leandro Trossard",
+      "en": "Leandro Trossard",
+      "c": "BEL",
+      "t": "Belgium",
       "a": 2
     }
   ]
