@@ -245,10 +245,10 @@
     "h": "ARG",
     "a": "EGY",
     "hs": 0,
-    "as": 0,
+    "as": 1,
     "d": "2026-07-07",
     "t": "16:00",
-    "state": "pre",
+    "state": "in",
     "round": "16强",
     "winner": null
   },
