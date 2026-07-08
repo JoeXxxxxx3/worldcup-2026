@@ -2,6 +2,13 @@
   "updated": "2026-07-08",
   "scorers": [
     {
+      "name": "梅西",
+      "en": "Lionel Messi",
+      "c": "ARG",
+      "t": "Argentina",
+      "g": 8
+    },
+    {
       "name": "姆巴佩",
       "en": "Kylian Mbappé",
       "c": "FRA",
@@ -13,13 +20,6 @@
       "en": "Erling Haaland",
       "c": "NOR",
       "t": "Norway",
-      "g": 7
-    },
-    {
-      "name": "梅西",
-      "en": "Lionel Messi",
-      "c": "ARG",
-      "t": "Argentina",
       "g": 7
     },
     {
