@@ -60,13 +60,18 @@
     }
     return path;
   }
-  /* 已淘汰队：淘汰赛已赛场次的败者（用于夺冠概率榜标注） */
+  /* 已淘汰队：淘汰赛败者 + 小组赛未进 32 强（用于夺冠概率榜标注） */
   function getEliminated(){
     const elim=new Set();
-    if(!dynamicKO) return elim;
-    [dynamicKO.r32,dynamicKO.r16,dynamicKO.qf,dynamicKO.sf].forEach(arr=>(arr||[]).forEach(m=>{
-      if(m && m.real){ elim.add(m.w===m.h ? m.a : m.h); }
-    }));
+    if(dynamicKO){
+      [dynamicKO.r32,dynamicKO.r16,dynamicKO.qf,dynamicKO.sf].forEach(arr=>(arr||[]).forEach(m=>{
+        if(m && m.real){ elim.add(m.w===m.h ? m.a : m.h); }
+      }));
+    }
+    // 小组赛出局：未进 32 强赛事的参赛队（如乌拉圭 H 组第3）
+    const r32=new Set();
+    (koSchedule||[]).filter(x=>x.round==='32强').forEach(x=>{r32.add(x.h);r32.add(x.a);});
+    if(r32.size) Object.keys(TEAMS).forEach(c=>{ if(!r32.has(c)) elim.add(c); });
     return elim;
   }
 
