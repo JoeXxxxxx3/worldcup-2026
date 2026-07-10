@@ -779,6 +779,48 @@
       </div>`).join('');
   }
 
+  /* ============ 半决赛深度分析 ============ */
+  function renderSemifinal(){
+    const sfData=[
+      {date:'7月14日 04:00',venue:'阿灵顿·AT&T 体育场',h:'FRA',a:'ESP',
+       h2h:{total:'38次交锋 西班牙18胜7平13负（占优）',wc:'1982 小组赛 1-1 平',last:'2021 欧国联决赛 法国 2-1 胜',tag:'欧洲德比，技术流正面对撞'}},
+      {date:'7月15日 03:00',venue:'亚特兰大·梅赛德斯奔驰体育场',h:'ENG',a:'ARG',
+       h2h:{total:'14次交锋 英格兰5胜5平4负（几乎均势）',wc:'1986 八强 马拉多纳"上帝之手"2-1 · 1998 小组 英格兰点球胜 · 2002 小组 阿根廷1-0',last:'2018 小组赛未相遇',tag:'宿敌恩怨：马岛+1986上帝之手，每次都是战争'}}
+    ];
+    const refNote='FIFA 通常赛前 48 小时公布。参考：QF1 法国 vs 摩洛哥由清一色阿根廷裁判组（主裁 Facundo Tello 特略）执法，引发"人情局"争议（摩洛哥在阿根廷裁判执法的世界杯比赛从未输球）。半决赛裁判安排将更受瞩目。';
+    $('#sfBody').innerHTML = sfData.map(sf=>{
+      const th=TEAMS[sf.h],ta=TEAMS[sf.a];
+      const p=predictMatch(sf.h,sf.a)||{pw:50,pd:25,pl:25};
+      const formRow=c=>{
+        const grp=GROUPS.filter(m=>m[7]===1&&(m[3]===c||m[4]===c));
+        const ko=koSchedule.filter(x=>x.state==='post'&&(x.h===c||x.a===c));
+        return [...grp,...ko].map(m=>{
+          const mh=m[3]??m.h, ma=m[4]??m.a;
+          const isH=mh===c;
+          const hs=m[5]??m.hs??0, as=m[6]??m.a??0;
+          const opp=isH?ma:mh;
+          const r=hs>as?'w':hs<as?'l':'d';
+          return `<i class="sf-fr sf-fr--${r}" title="${TEAMS[c].n}${hs}-${as}${TEAMS[opp]?TEAMS[opp].n:opp}">${r.toUpperCase()}</i>`;
+        }).join('');
+      };
+      const stars=c=>(STARS[c]||[]).slice(0,3).map(s=>`<span class="sf-star">${s.n}<small>${s.p||s.club||''}</small></span>`).join('');
+      return `<div class="sf-card reveal">
+        <div class="sf-top"><span class="sf-meta">${sf.date} · ${sf.venue}</span><span class="sf-prob">${th.n} <b>${p.pw}%</b> · 平 ${p.pd}% · ${ta.n} <b>${p.pl}%</b></span></div>
+        <div class="sf-match">
+          <div class="sf-side"><span class="fc-flag">${flagImg(sf.h,64)}</span><b>${th.n}</b><small>Elo ${ELO(th.r)}</small></div>
+          <div class="sf-vs">VS</div>
+          <div class="sf-side"><span class="fc-flag">${flagImg(sf.a,64)}</span><b>${ta.n}</b><small>Elo ${ELO(ta.r)}</small></div>
+        </div>
+        <div class="sf-grid">
+          <div class="sf-sec"><h4>📜 历史交锋</h4><p class="sf-h2h">${sf.h2h.total}</p>${sf.h2h.wc?`<small>世界杯：${sf.h2h.wc}</small>`:''}${sf.h2h.last?`<small>最近：${sf.h2h.last}</small>`:''}<div class="sf-tag">${sf.h2h.tag}</div></div>
+          <div class="sf-sec"><h4>📊 本届状态</h4><div class="sf-formt"><b>${th.n}</b><div class="sf-formrow">${formRow(sf.h)}</div></div><div class="sf-formt"><b>${ta.n}</b><div class="sf-formrow">${formRow(sf.a)}</div></div></div>
+          <div class="sf-sec"><h4>⭐ 核心球员</h4><div class="sf-stars">${stars(sf.h)}</div><div class="sf-stars">${stars(sf.a)}</div></div>
+          <div class="sf-sec"><h4>⚖️ 裁判因素</h4><p class="sf-ref">半决赛裁判待 FIFA 公布</p><small>${refNote}</small></div>
+        </div>
+      </div>`;
+    }).join('');
+    $$('#sfBody .reveal').forEach(el=>el.classList.add('in'));
+  }
   /* ============ 6. 球队档案 ============ */
   function renderProfiles(){
     $('#profiles').innerHTML = PROFILES.map(p=>`
@@ -1218,6 +1260,7 @@
     renderGroups();
     renderBracket();
     renderPath();
+    renderSemifinal();
     renderProfiles();
     renderMethod();
     // 默认焦点模块：小组赛全完赛且淘汰赛赛程已就绪 → 跟随到淘汰赛（最新赛果在淘汰赛）
