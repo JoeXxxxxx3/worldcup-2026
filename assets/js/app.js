@@ -810,9 +810,9 @@
       return `<div class="sf-card reveal">
         <div class="sf-top"><span class="sf-meta">${sf.date} · ${sf.venue}</span><span class="sf-prob">${th.n} <b>${p.pw}%</b> · 平 ${p.pd}% · ${ta.n} <b>${p.pl}%</b></span></div>
         <div class="sf-match">
-          <div class="sf-side"><span class="fc-flag">${flagImg(sf.h,64)}</span><b>${th.n}</b><small>Elo ${ELO(th.r)}</small></div>
+          <div class="sf-side"><span class="fc-flag">${flagImg(sf.h,80)}</span><b>${th.n}</b><small>Elo ${ELO(th.r)}</small></div>
           <div class="sf-vs">VS</div>
-          <div class="sf-side"><span class="fc-flag">${flagImg(sf.a,64)}</span><b>${ta.n}</b><small>Elo ${ELO(ta.r)}</small></div>
+          <div class="sf-side"><span class="fc-flag">${flagImg(sf.a,80)}</span><b>${ta.n}</b><small>Elo ${ELO(ta.r)}</small></div>
         </div>
         <div class="sf-grid">
           <div class="sf-sec"><h4>📜 历史交锋</h4><p class="sf-h2h">${sf.h2h.total}</p>${sf.h2h.wc?`<small>世界杯：${sf.h2h.wc}</small>`:''}${sf.h2h.last?`<small>最近：${sf.h2h.last}</small>`:''}<div class="sf-tag">${sf.h2h.tag}</div></div>
