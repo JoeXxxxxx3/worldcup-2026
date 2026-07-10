@@ -2,18 +2,18 @@
   "updated": "2026-07-10",
   "scorers": [
     {
+      "name": "姆巴佩",
+      "en": "Kylian Mbappé",
+      "c": "FRA",
+      "t": "France",
+      "g": 8
+    },
+    {
       "name": "梅西",
       "en": "Lionel Messi",
       "c": "ARG",
       "t": "Argentina",
       "g": 8
-    },
-    {
-      "name": "姆巴佩",
-      "en": "Kylian Mbappé",
-      "c": "FRA",
-      "t": "France",
-      "g": 7
     },
     {
       "name": "哈兰德",
@@ -28,6 +28,13 @@
       "c": "ENG",
       "t": "England",
       "g": 6
+    },
+    {
+      "name": "登贝莱",
+      "en": "Ousmane Dembélé",
+      "c": "FRA",
+      "t": "France",
+      "g": 5
     },
     {
       "name": "维尼修斯",
@@ -55,13 +62,6 @@
       "en": "Mikel Oyarzabal",
       "c": "ESP",
       "t": "Spain",
-      "g": 4
-    },
-    {
-      "name": "登贝莱",
-      "en": "Ousmane Dembélé",
-      "c": "FRA",
-      "t": "France",
       "g": 4
     },
     {
@@ -95,6 +95,13 @@
       "a": 5
     },
     {
+      "name": "Brahim Díaz",
+      "en": "Brahim Díaz",
+      "c": "MAR",
+      "t": "Morocco",
+      "a": 4
+    },
+    {
       "name": "吉马良斯",
       "en": "Bruno Guimarães",
       "c": "BRA",
@@ -102,11 +109,11 @@
       "a": 4
     },
     {
-      "name": "Brahim Díaz",
-      "en": "Brahim Díaz",
-      "c": "MAR",
-      "t": "Morocco",
-      "a": 4
+      "name": "姆巴佩",
+      "en": "Kylian Mbappé",
+      "c": "FRA",
+      "t": "France",
+      "a": 3
     },
     {
       "name": "Roberto Alvarado",
@@ -158,17 +165,10 @@
       "a": 2
     },
     {
-      "name": "Marc Cucurella",
-      "en": "Marc Cucurella",
-      "c": "ESP",
-      "t": "Spain",
-      "a": 2
-    },
-    {
-      "name": "Leandro Trossard",
-      "en": "Leandro Trossard",
-      "c": "BEL",
-      "t": "Belgium",
+      "name": "登贝莱",
+      "en": "Ousmane Dembélé",
+      "c": "FRA",
+      "t": "France",
       "a": 2
     }
   ]
