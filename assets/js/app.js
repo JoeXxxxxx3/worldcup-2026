@@ -797,14 +797,14 @@
       const formRow=c=>{
         const grp=GROUPS.filter(m=>m[7]===1&&(m[3]===c||m[4]===c));
         const ko=koSchedule.filter(x=>x.state==='post'&&(x.h===c||x.a===c));
-        return [...grp,...ko].map(m=>{
-          const mh=m[3]??m.h, ma=m[4]??m.a;
-          const isH=mh===c;
-          const hs=m[5]??m.hs??0, as=m[6]??m.a??0;
-          const opp=isH?ma:mh;
-          const r=hs>as?'w':hs<as?'l':'d';
-          return `<i class="sf-fr sf-fr--${r}" title="${TEAMS[c].n}${hs}-${as}${TEAMS[opp]?TEAMS[opp].n:opp}">${r.toUpperCase()}</i>`;
-        }).join('');
+        const fmt=(hC,aC,hs,as)=>{
+          const isH=hC===c;
+          const myG=isH?hs:as, opG=isH?as:hs;
+          const opp=isH?aC:hC;
+          const r=myG>opG?'w':myG<opG?'l':'d';
+          return `<i class="sf-fr sf-fr--${r}" title="${TEAMS[c].n} ${myG}-${opG} ${TEAMS[opp]?TEAMS[opp].n:opp}">${r.toUpperCase()}</i>`;
+        };
+        return grp.map(m=>fmt(m[3],m[4],m[5],m[6])).join('')+ko.map(x=>fmt(x.h,x.a,x.hs,x.as)).join('');
       };
       const stars=c=>(STARS[c]||[]).slice(0,3).map(s=>`<span class="sf-star">${s.n}<small>${s.p||s.club||''}</small></span>`).join('');
       return `<div class="sf-card reveal">
