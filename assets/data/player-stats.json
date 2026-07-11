@@ -37,6 +37,13 @@
       "g": 5
     },
     {
+      "name": "Mikel Oyarzabal",
+      "en": "Mikel Oyarzabal",
+      "c": "ESP",
+      "t": "Spain",
+      "g": 4
+    },
+    {
       "name": "维尼修斯",
       "en": "Vinícius Júnior",
       "c": "BRA",
@@ -58,13 +65,6 @@
       "g": 4
     },
     {
-      "name": "Mikel Oyarzabal",
-      "en": "Mikel Oyarzabal",
-      "c": "ESP",
-      "t": "Spain",
-      "g": 4
-    },
-    {
       "name": "Ismaïla Sarr",
       "en": "Ismaïla Sarr",
       "c": "SEN",
@@ -72,17 +72,17 @@
       "g": 4
     },
     {
+      "name": "Romelu Lukaku",
+      "en": "Romelu Lukaku",
+      "c": "BEL",
+      "t": "Belgium",
+      "g": 3
+    },
+    {
       "name": "C罗",
       "en": "Cristiano Ronaldo",
       "c": "POR",
       "t": "Portugal",
-      "g": 3
-    },
-    {
-      "name": "乔纳森·大卫",
-      "en": "Jonathan David",
-      "c": "CAN",
-      "t": "Canada",
       "g": 3
     }
   ],
@@ -165,10 +165,10 @@
       "a": 2
     },
     {
-      "name": "登贝莱",
-      "en": "Ousmane Dembélé",
-      "c": "FRA",
-      "t": "France",
+      "name": "Marc Cucurella",
+      "en": "Marc Cucurella",
+      "c": "ESP",
+      "t": "Spain",
       "a": 2
     }
   ]
