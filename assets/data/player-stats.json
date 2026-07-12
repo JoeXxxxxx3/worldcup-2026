@@ -2,17 +2,17 @@
   "updated": "2026-07-12",
   "scorers": [
     {
-      "name": "姆巴佩",
-      "en": "Kylian Mbappé",
-      "c": "FRA",
-      "t": "France",
-      "g": 8
-    },
-    {
       "name": "梅西",
       "en": "Lionel Messi",
       "c": "ARG",
       "t": "Argentina",
+      "g": 8
+    },
+    {
+      "name": "姆巴佩",
+      "en": "Kylian Mbappé",
+      "c": "FRA",
+      "t": "France",
       "g": 8
     },
     {
@@ -25,6 +25,13 @@
     {
       "name": "凯恩",
       "en": "Harry Kane",
+      "c": "ENG",
+      "t": "England",
+      "g": 6
+    },
+    {
+      "name": "贝林厄姆",
+      "en": "Jude Bellingham",
       "c": "ENG",
       "t": "England",
       "g": 6
@@ -55,13 +62,6 @@
       "en": "Julián Quiñones",
       "c": "MEX",
       "t": "Mexico",
-      "g": 4
-    },
-    {
-      "name": "贝林厄姆",
-      "en": "Jude Bellingham",
-      "c": "ENG",
-      "t": "England",
       "g": 4
     },
     {
@@ -102,6 +102,13 @@
       "a": 4
     },
     {
+      "name": "Martin Ødegaard",
+      "en": "Martin Ødegaard",
+      "c": "NOR",
+      "t": "Norway",
+      "a": 4
+    },
+    {
       "name": "吉马良斯",
       "en": "Bruno Guimarães",
       "c": "BRA",
@@ -113,13 +120,6 @@
       "en": "Kylian Mbappé",
       "c": "FRA",
       "t": "France",
-      "a": 3
-    },
-    {
-      "name": "Roberto Alvarado",
-      "en": "Roberto Alvarado",
-      "c": "MEX",
-      "t": "Mexico",
       "a": 3
     },
     {
@@ -137,6 +137,20 @@
       "a": 3
     },
     {
+      "name": "Roberto Alvarado",
+      "en": "Roberto Alvarado",
+      "c": "MEX",
+      "t": "Mexico",
+      "a": 3
+    },
+    {
+      "name": "Anthony Gordon",
+      "en": "Anthony Gordon",
+      "c": "ENG",
+      "t": "England",
+      "a": 3
+    },
+    {
       "name": "维尔茨",
       "en": "Florian Wirtz",
       "c": "GER",
@@ -151,24 +165,10 @@
       "a": 3
     },
     {
-      "name": "Martin Ødegaard",
-      "en": "Martin Ødegaard",
-      "c": "NOR",
-      "t": "Norway",
-      "a": 3
-    },
-    {
       "name": "阿什拉夫",
       "en": "Achraf Hakimi",
       "c": "MAR",
       "t": "Morocco",
-      "a": 2
-    },
-    {
-      "name": "Marc Cucurella",
-      "en": "Marc Cucurella",
-      "c": "ESP",
-      "t": "Spain",
       "a": 2
     }
   ]
