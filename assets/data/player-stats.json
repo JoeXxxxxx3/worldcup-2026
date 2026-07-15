@@ -2,17 +2,17 @@
   "updated": "2026-07-15",
   "scorers": [
     {
-      "name": "梅西",
-      "en": "Lionel Messi",
-      "c": "ARG",
-      "t": "Argentina",
-      "g": 8
-    },
-    {
       "name": "姆巴佩",
       "en": "Kylian Mbappé",
       "c": "FRA",
       "t": "France",
+      "g": 8
+    },
+    {
+      "name": "梅西",
+      "en": "Lionel Messi",
+      "c": "ARG",
+      "t": "Argentina",
       "g": 8
     },
     {
@@ -48,7 +48,7 @@
       "en": "Mikel Oyarzabal",
       "c": "ESP",
       "t": "Spain",
-      "g": 4
+      "g": 5
     },
     {
       "name": "维尼修斯",
@@ -165,10 +165,10 @@
       "a": 3
     },
     {
-      "name": "阿什拉夫",
-      "en": "Achraf Hakimi",
-      "c": "MAR",
-      "t": "Morocco",
+      "name": "Marc Cucurella",
+      "en": "Marc Cucurella",
+      "c": "ESP",
+      "t": "Spain",
       "a": 2
     }
   ]
