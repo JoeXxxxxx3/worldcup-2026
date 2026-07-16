@@ -2,17 +2,17 @@
   "updated": "2026-07-16",
   "scorers": [
     {
-      "name": "姆巴佩",
-      "en": "Kylian Mbappé",
-      "c": "FRA",
-      "t": "France",
-      "g": 8
-    },
-    {
       "name": "梅西",
       "en": "Lionel Messi",
       "c": "ARG",
       "t": "Argentina",
+      "g": 8
+    },
+    {
+      "name": "姆巴佩",
+      "en": "Kylian Mbappé",
+      "c": "FRA",
+      "t": "France",
       "g": 8
     },
     {
@@ -72,17 +72,17 @@
       "g": 4
     },
     {
+      "name": "劳塔罗",
+      "en": "Lautaro Martínez",
+      "c": "ARG",
+      "t": "Argentina",
+      "g": 3
+    },
+    {
       "name": "Romelu Lukaku",
       "en": "Romelu Lukaku",
       "c": "BEL",
       "t": "Belgium",
-      "g": 3
-    },
-    {
-      "name": "C罗",
-      "en": "Cristiano Ronaldo",
-      "c": "POR",
-      "t": "Portugal",
       "g": 3
     }
   ],
@@ -93,6 +93,13 @@
       "c": "FRA",
       "t": "France",
       "a": 5
+    },
+    {
+      "name": "梅西",
+      "en": "Lionel Messi",
+      "c": "ARG",
+      "t": "Argentina",
+      "a": 4
     },
     {
       "name": "Brahim Díaz",
@@ -123,6 +130,13 @@
       "a": 3
     },
     {
+      "name": "Anthony Gordon",
+      "en": "Anthony Gordon",
+      "c": "ENG",
+      "t": "England",
+      "a": 3
+    },
+    {
       "name": "萨卡",
       "en": "Bukayo Saka",
       "c": "ENG",
@@ -144,13 +158,6 @@
       "a": 3
     },
     {
-      "name": "Anthony Gordon",
-      "en": "Anthony Gordon",
-      "c": "ENG",
-      "t": "England",
-      "a": 3
-    },
-    {
       "name": "维尔茨",
       "en": "Florian Wirtz",
       "c": "GER",
@@ -163,13 +170,6 @@
       "c": "SWE",
       "t": "Sweden",
       "a": 3
-    },
-    {
-      "name": "Marc Cucurella",
-      "en": "Marc Cucurella",
-      "c": "ESP",
-      "t": "Spain",
-      "a": 2
     }
   ]
 }
