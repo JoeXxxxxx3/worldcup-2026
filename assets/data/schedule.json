@@ -333,10 +333,10 @@
     "h": "FRA",
     "a": "ENG",
     "hs": 0,
-    "as": 0,
+    "as": 4,
     "d": "2026-07-18",
     "t": "21:00",
-    "state": "pre",
+    "state": "in",
     "round": "三四名",
     "winner": null
   },
