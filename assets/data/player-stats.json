@@ -2,6 +2,13 @@
   "updated": "2026-07-19",
   "scorers": [
     {
+      "name": "姆巴佩",
+      "en": "Kylian Mbappé",
+      "c": "FRA",
+      "t": "France",
+      "g": 10
+    },
+    {
       "name": "梅西",
       "en": "Lionel Messi",
       "c": "ARG",
@@ -9,11 +16,11 @@
       "g": 8
     },
     {
-      "name": "姆巴佩",
-      "en": "Kylian Mbappé",
-      "c": "FRA",
-      "t": "France",
-      "g": 8
+      "name": "贝林厄姆",
+      "en": "Jude Bellingham",
+      "c": "ENG",
+      "t": "England",
+      "g": 7
     },
     {
       "name": "哈兰德",
@@ -23,25 +30,18 @@
       "g": 7
     },
     {
+      "name": "登贝莱",
+      "en": "Ousmane Dembélé",
+      "c": "FRA",
+      "t": "France",
+      "g": 6
+    },
+    {
       "name": "凯恩",
       "en": "Harry Kane",
       "c": "ENG",
       "t": "England",
       "g": 6
-    },
-    {
-      "name": "贝林厄姆",
-      "en": "Jude Bellingham",
-      "c": "ENG",
-      "t": "England",
-      "g": 6
-    },
-    {
-      "name": "登贝莱",
-      "en": "Ousmane Dembélé",
-      "c": "FRA",
-      "t": "France",
-      "g": 5
     },
     {
       "name": "Mikel Oyarzabal",
@@ -72,17 +72,17 @@
       "g": 4
     },
     {
-      "name": "劳塔罗",
-      "en": "Lautaro Martínez",
-      "c": "ARG",
-      "t": "Argentina",
+      "name": "Bradley Barcola",
+      "en": "Bradley Barcola",
+      "c": "FRA",
+      "t": "France",
       "g": 3
     },
     {
-      "name": "Romelu Lukaku",
-      "en": "Romelu Lukaku",
-      "c": "BEL",
-      "t": "Belgium",
+      "name": "萨卡",
+      "en": "Bukayo Saka",
+      "c": "ENG",
+      "t": "England",
       "g": 3
     }
   ],
@@ -92,7 +92,14 @@
       "en": "Michael Olise",
       "c": "FRA",
       "t": "France",
-      "a": 5
+      "a": 7
+    },
+    {
+      "name": "姆巴佩",
+      "en": "Kylian Mbappé",
+      "c": "FRA",
+      "t": "France",
+      "a": 4
     },
     {
       "name": "梅西",
@@ -123,22 +130,15 @@
       "a": 4
     },
     {
-      "name": "姆巴佩",
-      "en": "Kylian Mbappé",
-      "c": "FRA",
-      "t": "France",
-      "a": 3
-    },
-    {
-      "name": "Anthony Gordon",
-      "en": "Anthony Gordon",
+      "name": "萨卡",
+      "en": "Bukayo Saka",
       "c": "ENG",
       "t": "England",
       "a": 3
     },
     {
-      "name": "萨卡",
-      "en": "Bukayo Saka",
+      "name": "Anthony Gordon",
+      "en": "Anthony Gordon",
       "c": "ENG",
       "t": "England",
       "a": 3
